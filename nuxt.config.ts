@@ -69,9 +69,25 @@ export default defineNuxtConfig({
     },
   },
 
-  // 公开运行时配置：应用组件与 server 路由都从这里读站点完整地址
+  // 公开运行时配置：应用组件与 server 路由都从这里读站点地址
+  //
+  // ⚠️ 键名刻意不叫 `siteUrl` —— Nuxt 会把环境变量 NUXT_PUBLIC_SITE_URL 映射到
+  // runtimeConfig.public.siteUrl，而上面这个变量名又被 nuxt-site-config 占用（必须是
+  // 「源地址」，不能带路径），于是 CI 里 runtimeConfig.public.siteUrl 读出来就是源地址，
+  // 不含 /<repo>。曾经因此让 RSS 链接、OG 图、sitemap 修复全部丢掉子路径。
+  // 拆成两个不会与 Nuxt 约定重名的键，各司其职。
   runtimeConfig: {
-    public: { siteUrl },
+    public: {
+      siteOrigin, // 'https://<user>.github.io'
+      siteFullUrl: siteUrl, // 'https://<user>.github.io/<repo>'
+    },
+  },
+
+  // 子路径里带大写字母时（仓库名 AI-Blog → /AI-Blog/）必须关掉这个：
+  // nuxt-seo-utils 默认会把 canonical 链接整体小写化，而 GitHub Pages 的路径
+  // 区分大小写，/ai-blog 是 404，等于自己把 canonical 指向了死链。
+  seo: {
+    canonicalLowercase: false,
   },
 
   // @nuxtjs/robots 在设置了 baseURL 时会直接报错：

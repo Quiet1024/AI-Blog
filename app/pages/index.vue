@@ -7,7 +7,9 @@ const projects = await fetchProjects()
 const tags = collectTags(posts).slice(0, 10)
 
 useSeoMeta({
-  title: `${siteConfig.name} · ${siteConfig.tagline}`,
+  // 别再拼 siteConfig.name —— app.vue 的 titleTemplate 已经会补上「· 站名」，
+  // 拼了会变成「未定义空间 · 在未定义处，构建可能。 · 未定义空间」。
+  title: siteConfig.tagline,
   description: siteConfig.description,
 })
 </script>

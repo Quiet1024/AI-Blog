@@ -6,9 +6,12 @@ export default defineEventHandler(async (event) => {
     .order('date', 'DESC')
     .all()) as any[]
 
-  // 站点地址走运行时配置：部署时用 NUXT_PUBLIC_SITE_URL 注入即可，不用改源码
-  // （GitHub Pages 上会是 https://<user>.github.io/<repo>）
-  const site = String(useRuntimeConfig(event).public.siteUrl || siteConfig.url).replace(
+  // 站点地址走运行时配置：部署时用 baseURL + 源地址注入即可，不用改源码。
+  //
+  // 这里读的是 siteFullUrl 而不是 siteUrl —— NUXT_PUBLIC_SITE_URL 会被 Nuxt
+  // 映射到 runtimeConfig.public.siteUrl，而那个变量只能放「源地址」（不带路径），
+  // 于是 RSS 里的链接会丢掉 /<repo> 子路径。详见 nuxt.config.ts。
+  const site = String(useRuntimeConfig(event).public.siteFullUrl || siteConfig.url).replace(
     /\/+$/,
     '',
   )

@@ -30,17 +30,27 @@ import { fixSubpathSitemapUrls } from '../utils/sitemap-subpath.mjs'
  *
  * 另外：钩子拿到的 loc 已经是绝对地址，且数组长度不变 → 模块不会重新归一化，
  * 所以去重用的 _key 需要在修函数里一起更新。
+ *
+ * ⚠️ 踩过的坑：这里一开始用 runtimeConfig.public.siteUrl 当「站点完整地址」，
+ * 但 CI 会设置 NUXT_PUBLIC_SITE_URL（nuxt-site-config 要求它只能是「源地址」），
+ * Nuxt 又把它映射到 runtimeConfig.public.siteUrl，于是插件拿到的是源地址，
+ * 「被重复的那段 base」算错，**把线上 sitemap 里每条 URL 都截断了**。
+ * 现在只用 siteOrigin + app.baseURL，两者都不会被环境变量覆盖。
  */
 export default defineNitroPlugin((nitroApp) => {
   const config = useRuntimeConfig()
   const baseURL = config.app.baseURL || '/'
   if (baseURL === '/') return
 
-  const basePrefix = baseURL.replace(/\/+$/, '') // '/my-blog/'
-  const siteUrl = String(config.public.siteUrl || '').replace(/\/+$/, '') // 'https://<user>.github.io/my-blog'
-  if (!basePrefix || !siteUrl) return
+  const basePrefix = baseURL.replace(/\/+$/, '') // '/<repo>'
+  if (!basePrefix) return
+
+  // 只取 siteOrigin。别用 runtimeConfig.public.siteUrl ——
+  // 它会被环境变量 NUXT_PUBLIC_SITE_URL 覆盖成不带路径的源地址，
+  // 拿它去算「被重复的那段 base」会算错、把正常 URL 截断。
+  const siteOrigin = String(config.public.siteOrigin || '').replace(/\/+$/, '')
 
   nitroApp.hooks.hook('sitemap:resolved', (ctx) => {
-    fixSubpathSitemapUrls(ctx?.urls || [], { siteUrl, basePrefix })
+    fixSubpathSitemapUrls(ctx?.urls || [], { siteOrigin, basePrefix })
   })
 })

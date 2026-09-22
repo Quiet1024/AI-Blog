@@ -238,21 +238,33 @@ git push -u origin master
 
 2. 打开仓库 **Settings → Pages → Build and deployment**，把 **Source** 选成 **GitHub Actions**
    （⚠️ 不要选 "Deploy from a branch"，工作流方式才能拿到 baseURL 注入）。
+
+   > 这一步**必须手工做一次**：Actions 自带的 token 没有创建 Pages 站点的权限，
+   > 不先开启就发布，`configure-pages` 会报
+   > `Create Pages site failed. Resource not accessible by integration`。
+   > 开过之后，之后每次推送都会自动发布，不需要再管。
+   >
+   > 也可以用有 `repo` 权限的 token 直接调 API 开通：
+   > `POST /repos/<用户名>/<仓库名>/pages`，body `{"build_type":"workflow"}`。
 3. 进 **Actions** 标签，等 `Deploy to GitHub Pages` 跑完，站点地址是
    `https://<用户名>.github.io/<仓库名>/`。
 
 之后每次 `git push` 都会自动重新构建并发布。
 
-#### 已自动处理三个必踩的坑
+#### 已自动处理六个必踩的坑
 
 | 坑 | 处理方式 |
 | --- | --- |
-| **子路径** | 项目页跑在 `/<仓库名>/` 之下，所有资源都必须带这个前缀。工作流自动判断并注入 `NUXT_APP_BASE_URL`：仓库名形如 `<user>.github.io` 时用 `/`，否则用 `/<仓库名>/`。同时注入 `NUXT_PUBLIC_SITE_URL`（**只放源地址，不带路径**），供 sitemap / RSS / OG 图使用 |
+| **子路径** | 项目页跑在 `/<仓库名>/` 之下，所有资源都必须带这个前缀。工作流自动判断并注入 `NUXT_APP_BASE_URL`：仓库名形如 `<user>.github.io` 时用 `/`，否则用 `/<仓库名>/`。同时注入 `NUXT_PUBLIC_SITE_URL`（**只放源地址，不带路径**） |
 | **Jekyll 吞掉 `_nuxt/`** | GitHub Pages 默认用 Jekyll 处理站点，而 **Jekyll 会忽略下划线开头的目录** —— `_nuxt/`、`__nuxt_content/` 被无视，结果是 CSS/JS 全 404、页面变裸 HTML。`public/.nojekyll`（随构建产物输出）+ 工作流里的 `touch .output/public/.nojekyll` 双重保证关掉它 |
 | **sitemap 里首页变成 `/<repo>/<repo>`** | `@nuxtjs/sitemap` v8.5.1 在子路径下的拼接 Bug：首页被预渲染成带尾斜杠的 `/<repo>/`，而模块会先削掉尾斜杠再判断「是否已带前缀」，判断因此失败、又拼了一次 base，产出不存在的 `/<repo>/<repo>`。`server/plugins/sitemap-subpath-fix.ts` 在 `sitemap:resolved` 钩子里把它纠正回来（顺带补上 `<image:loc>` 漏掉的子路径）。根路径部署时该插件是空操作 |
+| **原生模块缺失导致构建起不来** | CI 上构建曾在 1 秒内以 exit 1 结束，日志是 `Could not locate the bindings file`：**bun 默认不执行依赖的安装脚本**，`@nuxt/content` 用的 `better-sqlite3` 原生绑定因此没被下载，而构建是用 `node` 跑的，于是打开 SQLite 时直接挂掉。解法是 `package.json` 里的 `trustedDependencies: ["better-sqlite3"]`（允许 bun 执行它的安装脚本）+ 工作流固定 Node 22 + 一个「校验原生模块」步骤让这类问题当场暴露 |
+| **`NUXT_PUBLIC_SITE_URL` 会把 `runtimeConfig.public.siteUrl` 覆盖掉** | Nuxt 会把 `NUXT_PUBLIC_SITE_URL` 映射到 `runtimeConfig.public.siteUrl`，而这个变量名又被 `nuxt-site-config` 占着、只能是**不带路径的源地址**。两者同名 → 运行时读到的 `siteUrl` 变成源地址，RSS 链接、OG 图、sitemap 修复全都丢掉 `/<repo>`。所以运行时配置里改叫 `siteOrigin` / `siteFullUrl`，不再与 Nuxt 约定重名 |
+| **canonical 被小写化** | 仓库名（→ 子路径）含大写字母时（如 `/AI-Blog/`），`nuxt-seo-utils` 默认把 canonical 整体小写化成 `/ai-blog`，而 **GitHub Pages 的路径区分大小写**，等于 canonical 指向 404。已设 `seo: { canonicalLowercase: false }` |
 
 > 这个 sitemap 修复可以脱离构建单独回归：`node scripts/verify-sitemap-subpath.mjs`
-> —— 它把 `@nuxtjs/sitemap` 自己的运行时代码按真实顺序跑一遍，并先自检「关闭修复时能否复现出 Bug」。
+> —— 它把 `@nuxtjs/sitemap` 自己的运行时代码按真实顺序跑一遍，并先自检「关闭修复时能否复现出 Bug」，
+> 同时断言「不含重复段的正常 URL 必须逐字不变」。
 
 #### 本地先看子路径效果
 
@@ -264,7 +276,7 @@ npx serve .output/public        # 起个静态服务器看效果
 ```
 
 > `NUXT_PUBLIC_SITE_URL` 里**不要**带 `/my-blog` —— nuxt-site-config 自己就认这个变量，
-> 带了路径构建期会警告；子路径由 `app.baseURL` 负责，sitemap / RSS / OG 图会自动拼上。
+> 带了路径构建期会警告；子路径由 `app.baseURL` 负责，RSS / OG 图读 `siteFullUrl`、sitemap 读 `app.baseURL`。
 
 #### 想换成自有域名
 
