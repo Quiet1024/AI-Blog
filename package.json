@@ -16,6 +16,10 @@
     "og": "node scripts/gen-og-image.mjs",
     "postinstall": "nuxt prepare"
   },
+  "//trustedDependencies": "bun 默认不执行依赖的安装脚本；@nuxt/content 需要 better-sqlite3 的原生绑定，不信任它会导致构建时 'Could not locate the bindings file'",
+  "trustedDependencies": [
+    "better-sqlite3"
+  ],
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
     "@fontsource/noto-sans-sc": "^5.3.0",

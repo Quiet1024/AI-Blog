@@ -22,6 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 固定 Node 版本：@nuxt/content 依赖 better-sqlite3 的原生绑定，
+      # 绑定是按 Node 的 ABI 版本下载/编译的，版本飘了就会 "Could not locate the bindings file"。
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -46,6 +52,12 @@ jobs:
 
       - name: 安装依赖
         run: bun install --frozen-lockfile
+
+      # 先确认 better-sqlite3 的原生绑定装好了再往下走。
+      # 没有这一步的话，报错会一路绕到 Nuxt 构建里，只看到
+      # "Could not locate the bindings file" 这种不好定位的信息。
+      - name: 校验原生模块
+        run: node -e "require('better-sqlite3'); console.log('better-sqlite3 原生绑定 OK')"
 
       - name: 生成纯静态站点
         env:
