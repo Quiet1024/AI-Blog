@@ -1,0 +1,36 @@
+{
+  "name": "my-blog",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "new": "node scripts/new-post.mjs",
+    "post": "node scripts/new-post.mjs",
+    "build": "nuxt build",
+    "build:node": "node node_modules/nuxt/bin/nuxt.mjs build",
+    "generate": "nuxt generate",
+    "generate:node": "node node_modules/nuxt/bin/nuxt.mjs generate",
+    "static": "node node_modules/nuxt/bin/nuxt.mjs generate",
+    "preview": "nuxt preview",
+    "serve": "node .output/server/index.mjs",
+    "og": "node scripts/gen-og-image.mjs",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/noto-sans-sc": "^5.3.0",
+    "@fontsource/noto-serif-sc": "^5.3.0",
+    "@nuxt/content": "^3.16.1",
+    "@nuxt/fonts": "^0.14.0",
+    "@nuxt/image": "^2.1.0",
+    "@nuxtjs/seo": "^5.3.16",
+    "@tailwindcss/vite": "^4.3.3",
+    "@takumi-rs/core": "^2.14.0",
+    "@vueuse/nuxt": "^15.0.0",
+    "better-sqlite3": "11.10.0",
+    "nuxt": "^4.5.2",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.43",
+    "vue-router": "^5.3.1"
+  }
+}

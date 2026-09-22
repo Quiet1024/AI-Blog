@@ -1,0 +1,82 @@
+name: Deploy to GitHub Pages
+
+# 推送到 main 即自动构建并发布；也可在 Actions 页面手动触发
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个发布任务，新的推送取消排队中的旧任务
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # 项目页部署在 https://<user>.github.io/<repo>/ 子路径下，必须给 Nuxt 设置 baseURL；
+      # 仓库名形如 <user>.github.io 的「用户主页」则部署在根路径，baseURL 为 '/'。
+      #
+      # NUXT_PUBLIC_SITE_URL 只能放「源」地址（协议+域名，不带路径）：
+      # nuxt-site-config 自己就认这个变量，带了路径会在构建期报警告；
+      # 而 sitemap 会自己把 baseURL 拼到 <loc> 上，所以子路径交给 baseURL 即可。
+      - name: 计算 baseURL 与站点源地址
+        id: site
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          if [[ "$REPO" == *.github.io ]]; then
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/$REPO/" >> "$GITHUB_OUTPUT"
+          fi
+          echo "url=https://$OWNER.github.io" >> "$GITHUB_OUTPUT"
+
+      - name: 安装依赖
+        run: bun install --frozen-lockfile
+
+      - name: 生成纯静态站点
+        env:
+          NUXT_APP_BASE_URL: ${{ steps.site.outputs.base }}
+          NUXT_PUBLIC_SITE_URL: ${{ steps.site.outputs.url }}
+        run: bun run static
+
+      # GitHub Pages 默认会用 Jekyll 处理站点，而 Jekyll 会忽略 _nuxt/ 与
+      # __nuxt_content/ 这类下划线开头的目录 —— 不关掉的话 CSS/JS 全部 404，页面变成裸 HTML。
+      # 仓库里已经放了 public/.nojekyll，这里再补一次，双保险。
+      - name: 关闭 Jekyll
+        run: touch .output/public/.nojekyll
+
+      # enablement: true —— 仓库还没开 Pages 时自动开启（build_type=workflow），
+      # 省掉「Settings → Pages → Source 选 GitHub Actions」这一步手工操作。
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: 上传产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

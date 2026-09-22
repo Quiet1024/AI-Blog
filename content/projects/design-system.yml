@@ -1,0 +1,8 @@
+name: 组件库与设计中台
+summary: 为业务线搭建的一套组件规范与交付流程，把设计稿到代码的还原周期从一周压到两天。
+role: 设计负责人
+year: 2025
+stack: [Figma, Tailwind, Storybook]
+link: ""
+accent: slate
+order: 3

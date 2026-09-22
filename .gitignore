@@ -1,0 +1,30 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# 参考用的开源主题已移到项目外（../reference-themes），不再放项目里
+themes/
+
+# 本地助手的工作状态（记忆/技能），不属于站点源码
+.workbuddy/

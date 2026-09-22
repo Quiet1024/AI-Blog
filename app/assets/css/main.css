@@ -1,0 +1,226 @@
+@import 'tailwindcss';
+
+/* 暗色模式走 html.dark class，而不是系统 prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------
+   Design tokens：纸感中性底 + teal/amber 强调色（杂志/作品集风）
+   --------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-ink-50: #faf9f7;
+  --color-ink-100: #f3f1ed;
+  --color-ink-200: #e6e3dc;
+  --color-ink-300: #cfcbc1;
+  --color-ink-400: #9b968a;
+  --color-ink-500: #6f6a5f;
+  --color-ink-600: #4b473f;
+  --color-ink-700: #33302a;
+  --color-ink-800: #1f1d1a;
+  --color-ink-900: #121110;
+
+  --color-accent-50: #eefbf7;
+  --color-accent-100: #d3f5ec;
+  --color-accent-200: #a9ebdc;
+  --color-accent-300: #71dcc7;
+  --color-accent-400: #3ec5ad;
+  --color-accent-500: #1aa88f;
+  --color-accent-600: #0f8773;
+  --color-accent-700: #106c5d;
+  --color-accent-800: #12564b;
+  --color-accent-900: #11473f;
+
+  --color-gold-400: #e0a548;
+  --color-gold-500: #c98a2e;
+}
+
+/* ---------------------------------------------------------------
+   配色预设：换一个主题色，全站链接/边框/标签/进度条一起变。
+   切换方式：<html data-accent="amber">，默认（teal）不写属性。
+   想加新配色：抄一段改数字，再到 app/data/accents.ts 里登记。
+   --------------------------------------------------------------- */
+[data-accent='amber'] {
+  --color-accent-50: #fdf6ec;
+  --color-accent-100: #faeeda;
+  --color-accent-200: #f5d9a8;
+  --color-accent-300: #eebb6d;
+  --color-accent-400: #e09a3a;
+  --color-accent-500: #c97f1d;
+  --color-accent-600: #a86412;
+  --color-accent-700: #85500f;
+  --color-accent-800: #633806;
+  --color-accent-900: #412402;
+}
+
+[data-accent='moss'] {
+  --color-accent-50: #f3f8ee;
+  --color-accent-100: #e4f0d9;
+  --color-accent-200: #c8e0b3;
+  --color-accent-300: #a3c987;
+  --color-accent-400: #7aad5b;
+  --color-accent-500: #5c8f3f;
+  --color-accent-600: #47722f;
+  --color-accent-700: #3a5c27;
+  --color-accent-800: #2c461e;
+  --color-accent-900: #1d3014;
+}
+
+[data-accent='ocean'] {
+  --color-accent-50: #eff6fd;
+  --color-accent-100: #dcebfa;
+  --color-accent-200: #b7d5f4;
+  --color-accent-300: #85b7eb;
+  --color-accent-400: #4d92dd;
+  --color-accent-500: #2b72c0;
+  --color-accent-600: #1d5a9e;
+  --color-accent-700: #18497e;
+  --color-accent-800: #123a63;
+  --color-accent-900: #0c2744;
+}
+
+[data-accent='clay'] {
+  --color-accent-50: #fdf3ef;
+  --color-accent-100: #fae4db;
+  --color-accent-200: #f3c6b3;
+  --color-accent-300: #e79f83;
+  --color-accent-400: #d9764f;
+  --color-accent-500: #bf5a34;
+  --color-accent-600: #9c4526;
+  --color-accent-700: #7d371f;
+  --color-accent-800: #5e2a18;
+  --color-accent-900: #401c10;
+}
+
+[data-accent='ink'] {
+  --color-accent-50: #f6f6f5;
+  --color-accent-100: #eceae7;
+  --color-accent-200: #dcd9d5;
+  --color-accent-300: #b9b5ae;
+  --color-accent-400: #8f8a82;
+  --color-accent-500: #6b665e;
+  --color-accent-600: #4e4a43;
+  --color-accent-700: #38352f;
+  --color-accent-800: #26241f;
+  --color-accent-900: #16150f;
+}
+
+:root {
+  --page-bg: var(--color-ink-50);
+  --page-fg: var(--color-ink-800);
+  --hairline: color-mix(in oklab, var(--color-ink-800) 12%, transparent);
+}
+
+.dark {
+  --page-bg: #0e0e0d;
+  --page-fg: #ece9e3;
+  --hairline: color-mix(in oklab, #ece9e3 16%, transparent);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent-300);
+  color: var(--color-ink-900);
+}
+
+/* 细分割线：杂志常用 hairline */
+.hairline {
+  border-color: var(--hairline);
+}
+
+/* 文章正文排版 */
+.prose-magazine {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+}
+.prose-magazine > * + * {
+  margin-top: 1.35em;
+}
+.prose-magazine h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  line-height: 1.35;
+  font-weight: 700;
+  margin-top: 2.4em;
+  letter-spacing: -0.01em;
+}
+.prose-magazine h3 {
+  font-size: 1.25rem;
+  font-weight: 650;
+  margin-top: 2em;
+}
+.prose-magazine p {
+  color: color-mix(in oklab, var(--page-fg) 88%, transparent);
+}
+.prose-magazine a {
+  color: var(--color-accent-600);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-line: underline;
+}
+.dark .prose-magazine a {
+  color: var(--color-accent-300);
+}
+.prose-magazine blockquote {
+  border-left: 2px solid var(--color-accent-500);
+  padding-left: 1.1em;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: color-mix(in oklab, var(--page-fg) 75%, transparent);
+}
+.prose-magazine ul,
+.prose-magazine ol {
+  padding-left: 1.35em;
+}
+.prose-magazine ul {
+  list-style: disc;
+}
+.prose-magazine ol {
+  list-style: decimal;
+}
+.prose-magazine li + li {
+  margin-top: 0.5em;
+}
+.prose-magazine code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: color-mix(in oklab, var(--color-ink-800) 8%, transparent);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.prose-magazine pre {
+  background: #14130f;
+  color: #e8e4dc;
+  padding: 1.1em 1.25em;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.prose-magazine pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.prose-magazine img {
+  border-radius: 10px;
+  width: 100%;
+}
+.prose-magazine hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin: 2.5em 0;
+}

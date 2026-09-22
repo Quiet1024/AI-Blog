@@ -1,0 +1,8 @@
+name: ai-butler 赛博工场
+summary: Electron 桌面应用，用多个自主 Agent 组成"数字公司"，承接并运行真实项目任务。
+role: 产品 + 架构
+year: 2026
+stack: [Electron, Vue 3, LangChain, Node.js]
+link: https://github.com/
+accent: amber
+order: 2
