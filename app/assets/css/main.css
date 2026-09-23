@@ -215,6 +215,39 @@ body {
   padding: 0;
   color: inherit;
 }
+/*
+ * 代码块底色是**常暗**的（上面的 #14130f，明暗两种模式下都不变），
+ * 但 Shiki 默认吐出来的是「双主题」：span 的颜色走 var(--shiki-default)，
+ * 只有 html 上有 .dark 时才切到 var(--shiki-dark)。
+ *
+ * 于是浅色模式下就出事了：--shiki-default 是 github-light 那套，
+ * 是给白底设计的 —— #24292E（近黑）、#032F62（深蓝）、#6F42C1（紫）、
+ * #D73A49（红）打在 #14130f 的近黑底上，实测最低对比度 **1.27:1**，等于看不见。
+ * 深色模式反而是好的（切到了 --shiki-dark）。
+ *
+ * 所以这里把两套主题统一成深色那一套。实测最低对比度从 1.27:1 → **6.99:1**。
+ *
+ * 权重说明：本条是 (0,2,1)，高于 MDC 生成的 `html .shiki span` (0,1,2)，
+ * 所以在浅色模式下由它说了算，不需要 !important。
+ * 深色模式下是 MDC 的 `html .dark .shiki span` (0,2,2) 权重更高、它会赢 ——
+ * 但它指向的 --shiki-dark 跟本条用的是同一套值，所以两种模式结果一致。
+ * 另外 span.line 这类没定义 --shiki-dark 的元素会走 fallback 的 inherit，
+ * 从 pre 继承到 #e8e4dc，正好是想要的。
+ *
+ * 如果以后想把代码块改成「浅色模式浅底 + 浅色主题」，就删掉这条规则、
+ * 同时把上面 pre 的 background 也改成跟主题走。
+ */
+.prose-magazine .shiki span {
+  color: var(--shiki-dark, inherit);
+}
+/*
+ * 补一个暗色模式下的边界问题：pre 的底色 #14130f 跟页面底色 #0e0e0d
+ * 几乎一样（对比度约 1.1:1），代码块会看不出从哪开始，像一段飘着的文字。
+ * 用 box-shadow 内描边而不是 border，免得 1px 造成布局位移。
+ */
+.dark .prose-magazine pre {
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
 .prose-magazine img {
   border-radius: 10px;
   width: 100%;

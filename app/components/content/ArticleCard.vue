@@ -16,8 +16,13 @@ const props = withDefaults(
     post: PostItem
     /** large：首页头条，封面更高、标题更大 */
     variant?: 'default' | 'large' | 'compact'
+    /**
+     * 是否渲染封面。首页头条那一栏外面已经单独放了一张大封面，
+     * 这里再画一张就是同一张图并排出现两次 —— 那种场合要传 false。
+     */
+    showCover?: boolean
   }>(),
-  { variant: 'default' },
+  { variant: 'default', showCover: true },
 )
 
 const coverHeight = computed(
@@ -30,7 +35,10 @@ const coverHeight = computed(
   <article class="group">
     <NuxtLink :to="props.post.path" class="block">
       <!-- 封面 -->
-      <div v-if="props.variant !== 'compact'" class="mb-4 overflow-hidden rounded-xl">
+      <div
+        v-if="props.variant !== 'compact' && props.showCover"
+        class="mb-4 overflow-hidden rounded-xl"
+      >
         <NuxtImg
           v-if="props.post.cover"
           :src="props.post.cover"
@@ -44,6 +52,8 @@ const coverHeight = computed(
           v-else
           :title="props.post.title"
           :seed="props.post.path"
+          :tags="props.post.tags"
+          :kicker="props.post.kicker"
           :height="coverHeight"
           class="transition duration-500 group-hover:scale-[1.02]"
         />

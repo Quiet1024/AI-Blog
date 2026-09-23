@@ -3,6 +3,7 @@ title: 为什么我又把博客重写了一遍
 description: 从 WordPress 到 Hexo 到 Notion，最后停在 Nuxt Content。这不是一篇技术选型文章，是一次关于"写作这件事到底需要什么"的自我盘问。
 date: 2026-09-18
 tags: [随笔, 写作]
+kicker: 重写
 featured: true
 author: 站长
 ---

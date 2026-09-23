@@ -1,8 +1,7 @@
 name: ChatMap 对话罗盘
-summary: 一个浏览器扩展，把长对话自动折叠成可导航的结构化地图，支持一键跳转到任意一轮。
+summary: 一个浏览器扩展，我们平时在使用AI助手时候会遇到长对话，对话了好几轮但是重要的信息可能在某一轮 如果再往上找很麻烦 这个对话罗盘可以随时记录每轮重要信息，支持一键跳转到任意一轮。
 role: 设计 + 全流程开发
 year: 2026
 stack: [WXT, Vue 3, TypeScript, Chrome MV3]
-link: https://github.com/
 accent: teal
 order: 1

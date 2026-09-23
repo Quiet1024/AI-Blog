@@ -77,13 +77,15 @@ useSeoMeta({
             v-else
             :title="featured.title"
             :seed="featured.path"
+            :tags="featured.tags"
+            :kicker="featured.kicker"
             height="22rem"
             label="Featured"
             class="sm:h-96!"
           />
         </NuxtLink>
         <div>
-          <ArticleCard :post="featured" variant="large" />
+          <ArticleCard :post="featured" variant="large" :show-cover="false" />
         </div>
       </div>
     </section>

@@ -36,8 +36,7 @@ useSeoMeta({
       <div class="prose-magazine">
         <p class="text-lg">{{ siteConfig.author.bio }}</p>
         <p>
-          这个站点是用 Nuxt 4 + Nuxt Content 搭的，文章都是本地 Markdown 文件，
-          写完直接 git push 就发布。没有后台，没有数据库，加载快，也搬得走。
+          作者主要技术栈是vue全家桶、nestjs、Electron、自动化playwright、微信小程序、uniapp
         </p>
         <p>
           目前写了 {{ posts.length }} 篇文章。如果你想聊点什么，可以发邮件到

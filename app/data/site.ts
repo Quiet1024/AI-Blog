@@ -7,14 +7,14 @@ export const siteConfig = {
   shortName: '未定义空间 / Undefined Space',
   tagline: '在未定义处，构建可能。',
   description:
-    '一个关于全栈开发、前端工程与 AI 工具的独立博客。偶尔写点长文，偶尔贴点作品。',
-  url: 'https://example.com', // TODO: 换成你的域名，SEO / RSS / OG 图都依赖它
+    '一个关于全栈开发 与 AI 工具产品的独立博客。写点文章，贴点作品。',
+  url: 'https://quiet1024.github.io/AI-Blog', // TODO: 换成你的域名，SEO / RSS / OG 图都依赖它
   locale: 'zh-CN',
   author: {
     name: 'L',
-    bio: '前端工程师 / 独立开发者 / 全栈开发。把复杂的东西做得干净。',
+    bio: '独立开发者 / 全栈开发。把复杂的东西做得干净。',
     avatar: '/avatar.svg', // 换成自己的图，放 public/ 下
-    email: 'edgelive@yeah.cn',
+    email: 'edgelive@yeah.net',
   },
   nav: [
     { label: '首页', to: '/' },
@@ -24,9 +24,8 @@ export const siteConfig = {
   ],
   // icon 取值见 app/components/AppIcon.vue 的映射表
   social: [
-    { label: 'GitHub', icon: 'github', to: 'https://github.com/' },
-    { label: 'X', icon: 'x', to: 'https://x.com/' },
-    { label: '微信', icon: 'wechat', to: '#' },
+     { label: 'GitHub', icon: 'github', to: 'https://github.com/Quiet1024' },
+    { label: 'Gitee', icon: 'gitee', to: 'https://gitee.com/Healerd' },
     { label: 'RSS', icon: 'rss', to: '/rss.xml' },
   ],
 }

@@ -36,7 +36,7 @@ const withBase = useBasePath()
           </a>
         </div>
         <p class="text-xs text-[color-mix(in_oklab,var(--page-fg)_45%,transparent)]">
-          © {{ year }} {{ siteConfig.author.name }} · 用 Nuxt Content 搭建
+          © {{ year }} {{ siteConfig.author.name }} · 未定义处，构建可能
         </p>
       </div>
     </div>

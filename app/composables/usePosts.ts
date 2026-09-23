@@ -11,6 +11,8 @@ export interface PostItem {
   updated?: string
   tags: string[]
   cover?: string
+  /** 封面首词（浅色轨用）；不填则封面回落到第一个标签 */
+  kicker?: string
   featured: boolean
   draft: boolean
   serif: boolean

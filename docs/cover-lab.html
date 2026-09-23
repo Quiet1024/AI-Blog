@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-accent="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>封面方案对比 · 未定义空间</title>
+<style>
+@font-face{font-family:'Inter';src:url('../public/fonts/inter-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter';src:url('../public/fonts/inter-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Noto Sans SC';src:url('../public/fonts/noto-sc-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Noto Sans SC';src:url('../public/fonts/noto-sc-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Noto Serif SC';src:url('../public/fonts/noto-serif-sc-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Noto Serif SC';src:url('../public/fonts/noto-serif-sc-700.woff2') format('woff2');font-weight:700;font-display:swap}
+
+:root{
+  --font-sans:'Inter','Noto Sans SC',system-ui,-apple-system,sans-serif;
+  --font-serif:'Noto Serif SC','Source Han Serif SC',Georgia,serif;
+  --font-mono:ui-monospace,'JetBrains Mono',Consolas,monospace;
+  --color-ink-50:#faf9f7; --color-ink-100:#f3f1ed; --color-ink-200:#e6e3dc;
+  --color-ink-300:#cfcbc1; --color-ink-400:#9b968a; --color-ink-500:#6f6a5f;
+  --color-ink-600:#4b473f; --color-ink-700:#33302a; --color-ink-800:#1f1d1a;
+  --color-accent-50:#eefbf7; --color-accent-100:#d3f5ec; --color-accent-200:#a9ebdc;
+  --color-accent-300:#71dcc7; --color-accent-400:#3ec5ad; --color-accent-500:#1aa88f;
+  --color-accent-600:#0f8773; --color-accent-700:#106c5d; --color-accent-800:#12564b;
+  --page-bg:var(--color-ink-50); --page-fg:var(--color-ink-800);
+  --hairline:color-mix(in oklab,var(--color-ink-800) 12%,transparent);
+  --cv-paper:#fffdfa; --cv-hair:color-mix(in oklab,#1f1d1a 11%,transparent);
+  --cv-muted:color-mix(in oklab,#1f1d1a 52%,transparent);
+  --cv-cn:#f3f1ed;
+}
+[data-accent="amber"]{--color-accent-100:#faeeda;--color-accent-300:#eebb6d;--color-accent-500:#c97f1d;--color-accent-600:#a86412;--color-accent-700:#85500f}
+[data-accent="moss"]{--color-accent-100:#e4f0d9;--color-accent-300:#a3c987;--color-accent-500:#5c8f3f;--color-accent-600:#47722f;--color-accent-700:#3a5c27}
+[data-accent="ocean"]{--color-accent-100:#dcebfa;--color-accent-300:#85b7eb;--color-accent-500:#2b72c0;--color-accent-600:#1d5a9e;--color-accent-700:#18497e}
+[data-accent="clay"]{--color-accent-100:#fae4db;--color-accent-300:#e79f83;--color-accent-500:#bf5a34;--color-accent-600:#9c4526;--color-accent-700:#7d371f}
+[data-accent="ink"]{--color-accent-100:#eceae7;--color-accent-300:#b9b5ae;--color-accent-500:#6b665e;--color-accent-600:#4e4a43;--color-accent-700:#38352f}
+.dark{
+  --page-bg:#0e0e0d; --page-fg:#ece9e3;
+  --hairline:color-mix(in oklab,#ece9e3 16%,transparent);
+  --cv-paper:#171716;
+  --cv-hair:color-mix(in oklab,#ece9e3 14%,transparent);
+  --cv-muted:color-mix(in oklab,#ece9e3 52%,transparent);
+  --cv-cn:#1c1c1a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page-bg);color:var(--page-fg);font-family:var(--font-sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:44px 28px 90px}
+h1{font-family:var(--font-serif);font-size:34px;line-height:1.25;margin:0 0 12px;font-weight:700;letter-spacing:-.01em}
+.lede{font-size:16px;color:var(--cv-muted);max-width:74ch;margin:0 0 26px}
+.why{background:var(--cv-cn);border-left:3px solid var(--color-accent-500);border-radius:0 10px 10px 0;padding:16px 20px;margin:0 0 30px;font-size:14px}
+.why b{color:var(--color-accent-600)}
+.why ol{margin:8px 0 0;padding-left:1.3em}
+.why li+li{margin-top:5px}
+.controls{position:sticky;top:0;z-index:20;background:var(--page-bg);border-bottom:1px solid var(--hairline);padding:12px 0;margin-bottom:34px;display:flex;flex-wrap:wrap;gap:22px;align-items:center}
+.ctl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cv-muted)}
+.ctl-btns{display:flex;gap:0;border:1px solid var(--hairline);border-radius:8px;overflow:hidden}
+.ctl-btns button{appearance:none;border:0;background:transparent;color:var(--page-fg);font-family:inherit;font-size:13px;padding:5px 11px;cursor:pointer;border-right:1px solid var(--hairline)}
+.ctl-btns button:last-child{border-right:0}
+.ctl-btns button[aria-pressed="true"]{background:var(--color-accent-500);color:#fff}
+section.cand{margin:0 0 46px;padding-bottom:40px;border-bottom:1px solid var(--hairline)}
+section.cand:last-of-type{border-bottom:0}
+.cand-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.cand-head h2{font-family:var(--font-serif);font-size:21px;font-weight:700;margin:0;letter-spacing:-.01em}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:20px;font-weight:500;letter-spacing:.02em}
+.badge.rec{background:var(--color-accent-600);color:#fff}
+.badge.warn{background:color-mix(in oklab,var(--color-accent-500) 16%,transparent);color:var(--color-accent-700)}
+.dark .badge.warn{color:var(--color-accent-200)}
+.badge.base{background:var(--cv-cn);color:var(--cv-muted);border:1px solid var(--cv-hair)}
+.cand-note{font-size:13.5px;color:var(--cv-muted);margin:0 0 18px;max-width:84ch}
+.cand-note b{color:var(--page-fg);font-weight:500}
+.cand-note code{font-family:var(--font-mono);font-size:12px;background:var(--cv-cn);padding:1px 5px;border-radius:4px}
+.row{display:flex;flex-wrap:wrap;gap:18px}
+.item{display:flex;flex-direction:column;gap:8px}
+.cap{font-size:12px;color:var(--cv-muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap em{font-style:normal;font-family:var(--font-mono);font-size:11px;opacity:.75}
+
+.cv{position:relative;overflow:hidden;border-radius:13px;flex:0 0 auto}
+.cv-glyph{position:absolute;right:-6px;bottom:-14px;font-family:var(--font-serif);font-weight:700;line-height:1;opacity:.25;user-select:none}
+
+.cv-plate{background:var(--cv-paper);border:1px solid var(--cv-hair);padding:22px 24px;display:flex;flex-direction:column}
+.pl-bar{position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--color-accent-500)}
+.pl-top{display:flex;justify-content:flex-end;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;color:var(--cv-muted)}
+.pl-hr{height:1px;background:var(--cv-hair);margin:12px 0 0}
+.pl-no{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.2em;color:var(--color-accent-600);margin-top:auto}
+.pl-big{font-family:var(--font-serif);font-weight:700;line-height:.86;color:var(--color-accent-600);letter-spacing:-.03em;margin:2px 0 auto}
+.pl-tags{font-size:12.5px;color:var(--cv-muted);letter-spacing:.02em}
+
+.cv-tag{display:flex;align-items:flex-end;padding:20px 22px;color:#fff}
+.tg-art{position:absolute;right:-14px;top:-14px;width:74%;height:74%;opacity:.22}
+.tg-chip{position:relative;font-size:12.5px;font-weight:500;padding:4px 11px;border-radius:20px;background:transparent;border:1px solid #ffffff73;color:#fff;letter-spacing:.04em}
+
+.cv-outline{background:var(--cv-paper);border:1px solid var(--cv-hair);display:flex;align-items:flex-end;padding:20px 22px}
+.ol-art{position:absolute;inset:0;width:100%;height:100%}
+.ol-tag{position:relative;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;color:var(--cv-muted);text-transform:uppercase}
+
+.cv-term{background:#0d3a34;display:flex;flex-direction:column;font-family:var(--font-mono)}
+.tm-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;border-bottom:1px solid #1a5a51}
+.tm-bar i{width:8px;height:8px;border-radius:50%;display:block;background:#20685d}
+.tm-bar span{margin-left:6px;font-size:11px;color:#7ab8ad;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tm-body{padding:16px 16px 18px;margin-top:auto}
+.tm-line{font-size:12.5px;color:#eafaf7}
+.tm-line em{font-style:normal;color:var(--color-accent-400)}
+.tm-meta{margin-top:8px;font-size:11.5px;color:#7ab8ad;letter-spacing:.04em}
+.tm-cur{display:inline-block;width:7px;height:13px;background:var(--color-accent-400);vertical-align:-2px;margin-left:4px;animation:bl 1.4s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+
+.cv-kick{background:var(--color-accent-500);display:flex;flex-direction:column;justify-content:space-between;padding:22px 24px;color:#fff}
+.kk-word{font-family:var(--font-serif);font-weight:700;line-height:.98;letter-spacing:-.02em;color:#fff}
+.kk-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-family:var(--font-mono);font-size:11px;color:#ffffffb0;letter-spacing:.06em}
+.kk-hr{height:1px;background:#ffffff33;margin:10px 0 0}
+
+footer.end{font-size:13px;color:var(--cv-muted);border-top:1px solid var(--hairline);padding-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>封面方案对比</h1>
+  <p class="lede">用你真实的 4 篇文章、真实的卡片尺寸渲染。下面 6 个候选保留为选型记录。</p>
+
+  <div style="background:var(--cv-cn);border-left:3px solid var(--color-accent-600);border-radius:0 10px 10px 0;padding:16px 20px;margin:0 0 22px;font-size:14px">
+    <b style="color:var(--color-accent-600)">已实施（2026-09-23）：采用「深色打字机 + 首词排版」两轨制</b>
+    <ul style="margin:8px 0 0;padding-left:1.3em">
+      <li>标签命中 <code>AI / 工程 / 前端 / 后端 / 开发 / 技术 / 算法</code> → 深青绿终端轨，底色 <code>#0d3a34</code>（压深两档的青绿，不是纯黑也不是蓝黑）</li>
+      <li>其余 → 浅色轨：<b>实底 + 白字</b> —— 大号衬线首词（frontmatter 的 <code>kicker</code>，缺省回落到第一个标签）压在标签派生的实色块上，右上角一个白色几何符号</li>
+      <li>浅色轨的底色就是站点 6 套 accent 的 <b>500 档</b>（如青绿 <code>#1aa88f</code>），两种明暗模式共用一个值；两条轨靠<b>明度</b>拉开而不是靠色相，见 <code>cover-preview-light.png</code> / <code>cover-preview-dark.png</code></li>
+      <li>标签取色默认按名称 hash 自动分配，另有显式指定表纠偏：<code>设计 → 青绿</code>（hash 本来落在石墨灰，灰度封面在网格里最不抢眼，且与站点默认主色不一致）</li>
+    </ul>
+    <p style="margin:10px 0 0">即下面候选 5「深色打字机」与候选 6「首词排版」的组合，其余候选未采用。
+    <b>候选 6 的底色在实施后改过一轮</b>：最初按「浅底 + 同色字」铺（青绿那档是 <code>#eefbf7</code> 底 + <code>#0f8773</code> 字），
+    实际看下来太淡、撑不住大号衬线字，遂统一成<b>实底 500 档 + 白字</b>；终端轨也由原来的深黑蓝改成深青绿，让两条轨落在同一个色系里。</p>
+  </div>
+
+  <div class="why">
+    <b>为什么要换</b>——现在这版有三处结构性问题，不是配色不好看的问题：
+    <ol>
+      <li><b>随机色 + 取标题前 2 字</b>。「给智能体装上记忆」→ 显示「给智」，这是截断，不是设计；而且色板是 8 组彩虹色，和站点 accent 色阶（6 套预设）是两套系统，互相打架。</li>
+      <li><b>信息密度为零</b>。18rem 的头条封面占了首屏最大一块面积，却不承载任何信息。</li>
+      <li><b>不可扫描</b>。色块由标题 hash 决定，所以「设计」类和「AI」类文章的颜色毫无规律，首页网格里看不出任何分类线索。</li>
+    </ol>
+    下面 5 个候选分别针对这三点做取舍，第 3 个（标签色谱）是我的推荐。
+  </div>
+
+  <div class="controls">
+    <div class="ctl"><span>尺寸</span><div class="ctl-btns" id="sizeBtns">
+      <button data-size="card">卡片</button><button data-size="hero">头条</button><button data-size="page">文章页</button>
+    </div></div>
+    <div class="ctl"><span>明暗</span><div class="ctl-btns" id="themeBtns">
+      <button data-theme="light">浅色</button><button data-theme="dark">深色</button>
+    </div></div>
+    <div class="ctl"><span>主题色</span><div class="ctl-btns" id="accentBtns">
+      <button data-acc="teal">青绿</button><button data-acc="amber">琥珀</button><button data-acc="moss">苔绿</button><button data-acc="ocean">深海</button><button data-acc="clay">陶土</button><button data-acc="ink">石墨</button>
+    </div></div>
+  </div>
+
+  <div id="lab"></div>
+
+  <footer class="end">
+    渲染尺寸：卡片 320×176 · 头条 460×288 · 文章页 700×416（对应代码里的 11rem / 18rem / 26rem）。
+    点封面没有反应是正常的——这是静态对比页，不是站点。
+  </footer>
+</div>
+
+<script>
+const POSTS=[
+  {idx:1,slug:'typography-checklist',title:'排版是阅读的呼吸：一份长文排版清单',date:'2026-08-28',tags:['设计','排版'],kick:'呼吸'},
+  {idx:2,slug:'ai-agent-memory',title:'给智能体装上记忆：一次真实的踩坑记录',date:'2026-09-05',tags:['AI','工程'],kick:'记忆'},
+  {idx:3,slug:'designer-writes-code',title:'设计师写代码：从 Figma 到组件的最后一百米',date:'2026-09-12',tags:['设计','前端'],kick:'一百米'},
+  {idx:4,slug:'hello-nuxt-blog',title:'为什么我又把博客重写了一遍',date:'2026-09-18',tags:['随笔','写作'],kick:'重写'}
+];
+const SIZES={card:{w:320,h:176},hero:{w:460,h:288},page:{w:700,h:416}};
+const ACCENTS=[
+  {c:'#1aa88f',d:'#0f8773',l:'#eefbf7'},{c:'#c97f1d',d:'#a86412',l:'#fdf6ec'},
+  {c:'#5c8f3f',d:'#47722f',l:'#f3f8ee'},{c:'#2b72c0',d:'#1d5a9e',l:'#eff6fd'},
+  {c:'#bf5a34',d:'#9c4526',l:'#fdf3ef'},{c:'#6b665e',d:'#4e4a43',l:'#f6f6f5'}
+];
+/* 标签 → 色号的显式指定，和线上 covers.ts 的 coverTagAccent 保持一致。
+   「设计」原本 hash 到 5 号（石墨灰），改成 0 号青绿 —— 站点默认 accent 就是青绿。 */
+const TAG_PIN={'设计':0};
+const PALS=[['#0f766e','#5eead4','#f0fffb'],['#b45309','#fcd34d','#fffaf0'],['#1e293b','#64748b','#f1f5f9'],['#7c2d12','#fb923c','#fff7ed'],['#164e63','#67e8f9','#ecfeff'],['#3f1d38','#e879a6','#fdf2f8'],['#1a2e05','#a3e635','#f7fee7'],['#312e81','#a5b4fc','#eef2ff']];
+const NOISE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")";
+const hash=function(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
+
+const SYMS=[
+  function(a){return '<svg class="tg-art" viewBox="0 0 100 100"><circle cx="52" cy="50" r="41" fill="none" stroke="'+a.c+'" stroke-width="1.6"/><circle cx="52" cy="50" r="27" fill="none" stroke="'+a.c+'" stroke-width="1.6"/><circle cx="52" cy="50" r="13" fill="'+a.c+'"/></svg>'},
+  function(a){var d='';for(var x=12;x<=96;x+=21)for(var y=12;y<=96;y+=21)d+='<circle cx="'+x+'" cy="'+y+'" r="4.2" fill="'+a.c+'"/>';return '<svg class="tg-art" viewBox="0 0 100 100">'+d+'</svg>'},
+  function(a){var d='';[26,50,38,70,42,62,30].forEach(function(h,i){d+='<rect x="'+(10+i*13)+'" y="'+(92-h)+'" width="6.5" height="'+h+'" fill="'+a.c+'"/>'});return '<svg class="tg-art" viewBox="0 0 100 100">'+d+'</svg>'},
+  function(a){return '<svg class="tg-art" viewBox="0 0 100 100"><path d="M6 100 L100 6 L100 100 Z" fill="'+a.c+'" opacity=".8"/><path d="M6 62 L46 22 L46 62 Z" fill="'+a.d+'"/></svg>'},
+  function(a){return '<svg class="tg-art" viewBox="0 0 100 100"><g stroke="'+a.c+'" stroke-width="1.6" fill="none"><path d="M22 32 L52 20 L80 44 M22 32 L36 68 M80 44 L64 80 M36 68 L64 80 M52 20 L36 68"/></g><g fill="'+a.c+'"><circle cx="22" cy="32" r="5.4"/><circle cx="52" cy="20" r="5.4"/><circle cx="80" cy="44" r="5.4"/><circle cx="36" cy="68" r="5.4"/><circle cx="64" cy="80" r="5.4"/></g></svg>'},
+  function(a){var d='';[14,30,46,62,78].forEach(function(y,i){d+='<rect x="10" y="'+y+'" width="'+(i===2?54:80)+'" height="6" rx="3" fill="'+a.c+'" opacity="'+(0.3+i*0.14)+'"/>'});return '<svg class="tg-art" viewBox="0 0 100 100">'+d+'</svg>'}
+];
+const OUTS=[
+  function(a){var d='';for(var i=-6;i<14;i++)d+='<line x1="'+(i*14)+'" y1="0" x2="'+(i*14+70)+'" y2="110" stroke="'+a.c+'" stroke-width="1"/>';return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice"><g opacity=".34">'+d+'</g></svg>'},
+  function(a){return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="'+a.c+'" stroke-width="1" opacity=".4"><rect x="120" y="-10" width="130" height="150"/><rect x="140" y="10" width="90" height="110"/><rect x="160" y="30" width="50" height="70"/></g></svg>'},
+  function(a){var d='';for(var x=10;x<230;x+=18)for(var y=8;y<130;y+=16){var r=(x+y)/400;d+='<circle cx="'+x+'" cy="'+y+'" r="'+(1.1+r*3.6)+'" fill="'+a.c+'" opacity="'+(0.16+r*0.5)+'"/>'}return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice">'+d+'</svg>'},
+  function(a){return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice"><path d="M0 120 L55 52 L96 92 L150 26 L220 100" fill="none" stroke="'+a.c+'" stroke-width="1.6" opacity=".55"/><path d="M0 120 L55 52 L96 92 L150 26 L220 100 L220 130 L0 130 Z" fill="'+a.c+'" opacity=".08"/></svg>'},
+  function(a){return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="46" r="58" fill="none" stroke="'+a.c+'" stroke-width="1" opacity=".4"/><circle cx="160" cy="46" r="30" fill="'+a.c+'" opacity=".12"/><line x1="0" y1="112" x2="220" y2="112" stroke="'+a.c+'" stroke-width="1.4" opacity=".5"/></svg>'},
+  function(a){var d='';for(var x=0;x<=220;x+=22)d+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="130" stroke="'+a.c+'" stroke-width=".8" opacity=".28"/>';for(var y=0;y<=130;y+=22)d+='<line x1="0" y1="'+y+'" x2="220" y2="'+y+'" stroke="'+a.c+'" stroke-width=".8" opacity=".28"/>';return '<svg class="ol-art" viewBox="0 0 220 130" preserveAspectRatio="xMidYMid slice">'+d+'<rect x="44" y="44" width="66" height="66" fill="'+a.c+'" opacity=".82"/></svg>'}
+];
+
+function cBase(p,s){
+  var pal=PALS[hash(p.slug)%PALS.length];
+  var g=/^[\u4e00-\u9fa5]/.test(p.title)?p.title.slice(0,2):p.title.slice(0,3).toUpperCase();
+  return '<div class="cv" style="width:'+s.w+'px;height:'+s.h+'px;background:linear-gradient(135deg,'+pal[0]+' 0%,'+pal[1]+' 100%)">'
+    +'<div style="position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;background-image:'+NOISE+'"></div>'
+    +'<span class="cv-glyph" style="color:'+pal[2]+';font-size:'+Math.round(s.h*0.5)+'px">'+g+'</span></div>';
+}
+function cPlate(p,s){
+  var no=String(p.idx).padStart(2,'0');
+  var dt=p.date.split('-');
+  return '<div class="cv cv-plate" style="width:'+s.w+'px;height:'+s.h+'px">'
+    +'<div class="pl-bar"></div>'
+    +'<div class="pl-top">'+dt[0]+'.'+dt[1]+'.'+dt[2]+'</div>'
+    +'<div class="pl-hr"></div>'
+    +'<div class="pl-no">NO.</div>'
+    +'<div class="pl-big" style="font-size:'+Math.round(s.h*0.4)+'px">'+no+'</div>'
+    +'<div class="pl-tags">'+p.tags.join(' · ')+'</div></div>';
+}
+function cTag(p,s){
+  var tag=p.tags[0]||'未分类';
+  var a=ACCENTS[TAG_PIN[tag]!==undefined?TAG_PIN[tag]:hash(tag)%ACCENTS.length], sym=SYMS[hash(tag+'|s')%SYMS.length];
+  /* 实底就是该标签的色，所以符号一律传白色进去 —— 再用同色等于隐形 */
+  return '<div class="cv cv-tag" style="width:'+s.w+'px;height:'+s.h+'px;background:'+a.c+'">'
+    +sym({c:'#fff',d:'#fff'})
+    +'<span class="tg-chip">'+tag+'</span></div>';
+}
+function cOutline(p,s){
+  var a=ACCENTS[hash(p.tags[0]||p.slug)%ACCENTS.length], art=OUTS[hash(p.slug+'|o')%OUTS.length];
+  return '<div class="cv cv-outline" style="width:'+s.w+'px;height:'+s.h+'px">'
+    +art(a)+'<span class="ol-tag">'+p.tags.join(' / ')+'</span></div>';
+}
+function cTerm(p,s){
+  return '<div class="cv cv-term" style="width:'+s.w+'px;height:'+s.h+'px">'
+    +'<div class="tm-bar"><i></i><i></i><i></i><span>~/posts/'+p.slug+'.md</span></div>'
+    +'<div class="tm-body"><div class="tm-line"><em>$</em> cat '+p.slug+'.md<span class="tm-cur"></span></div>'
+    +'<div class="tm-meta">'+p.date+' &nbsp;·&nbsp; '+p.tags.join('  ')+'</div></div></div>';
+}
+function cKick(p,s){
+  return '<div class="cv cv-kick" style="width:'+s.w+'px;height:'+s.h+'px">'
+    +'<div class="kk-word" style="font-size:'+Math.round(s.h*0.3)+'px">'+p.kick+'</div>'
+    +'<div><div class="kk-hr" style="margin-bottom:10px"></div>'
+    +'<div class="kk-foot"><span>'+p.tags.join(' / ')+'</span><span>'+p.date.replace(/-/g,'.')+'</span></div></div></div>';
+}
+
+const CANDS=[
+  {name:'现状（基线）',badge:['base','对照'],fn:cBase,
+   note:'渐变 + 噪点 + 标题前 2 字。留作对照——注意「给智能体装上记忆」显示的是「给智」，「设计师写代码」显示的是「设计」，两篇都以「设计」开头的文章颜色却完全不同。'},
+  {name:'编辑铭牌',badge:null,fn:cPlate,
+   note:'把封面变成<b>杂志目录条目</b>：纸底 + 左侧 accent 色书脊 + 等宽日期 + 超大衬线期号 + 标签。<b>颜色只来自你的 token</b>，不引入新色系；<b>不重复标题</b>（卡片下方本来就有）。代价：期号会随新文章插入而重排，若在意稳定可换成「年份 / 月份」或阅读时长。'},
+  {name:'标签色谱',badge:['rec','推荐'],fn:cTag,
+   note:'<b>用第一个标签决定色相与几何符号</b>，而不是标题 hash。这一换封面就有了语义：所有「设计」类稿拿到同一个色和同一个图形，首页网格扫一眼就知道哪几篇是一类。<b>颜色全部从你已有的 6 套 accent 派生</b>，符号是 6 个手绘 SVG 构图。新增标签自动分组，不用维护配置表。'},
+  {name:'线稿构成',badge:null,fn:cOutline,
+   note:'同样是生成式，但<b>只用线不填色</b>——纸底 + 单色 accent 线条的 6 种人工构图（斜线阵 / 同心方框 / 点阵渐变 / 折线 / 圆与切线 / 网格+实心块）。比「标签色谱」更安静，适合不想让封面抢正文的取向。缺点是识别度弱，首页网格里不如前两个抓眼。'},
+  {name:'深色打字机',badge:null,fn:cTerm,
+   note:'深底（复用你 pre 代码块那支 <code>#14130f</code>）+ 等宽字体 + accent 光标。技术稿专属，和浅色卡片形成节奏对比。<b>注意</b>：混排时视觉重量差异很大，建议只给「AI / 工程 / 前端」这类标签用——但那又引入两套规则，需要权衡。'},
+  {name:'首词排版',badge:['warn','需人工'],fn:cKick,
+   note:'在 frontmatter 加一个 <code>kicker</code> 字段，你手工给每篇指定一个 2–4 字短词（例：「记忆」「一百米」「呼吸」「重写」），排成大号衬线放在实色 accent 底上。<b>质量上限最高</b>，因为里面有你的判断，不是机器截的。代价：每篇多写一个字段，忘了填需要兜底（可回落到「标签色谱」）。'}
+];
+
+var SIZE='card', THEME='light';
+function cur(){return SIZES[SIZE]}
+function mount(){
+  document.getElementById('lab').innerHTML=CANDS.map(function(c){
+    return '<section class="cand">'
+      +'<div class="cand-head"><h2>'+c.name+'</h2>'+(c.badge?'<span class="badge '+c.badge[0]+'">'+c.badge[1]+'</span>':'')+'</div>'
+      +'<p class="cand-note">'+c.note+'</p>'
+      +'<div class="row">'+POSTS.map(function(p){
+        return '<div class="item">'+c.fn(p,cur())+'<span class="cap">'+p.title.slice(0,14)+'… <em>'+p.tags[0]+'</em></span></div>'
+      }).join('')+'</div></section>'
+  }).join('');
+}
+function setPressed(id,attr,val){
+  document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset[attr]===val))})
+}
+function boot(){
+  setPressed('sizeBtns','size','card');
+  setPressed('themeBtns','theme','light');
+  setPressed('accentBtns','acc','teal');
+  mount();
+  document.getElementById('sizeBtns').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; SIZE=b.dataset.size; setPressed('sizeBtns','size',SIZE); mount();
+  });
+  document.getElementById('themeBtns').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; THEME=b.dataset.theme; setPressed('themeBtns','theme',THEME);
+    document.documentElement.classList.toggle('dark',THEME==='dark'); mount();
+  });
+  document.getElementById('accentBtns').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    var acc=b.dataset.acc; setPressed('accentBtns','acc',acc);
+    document.documentElement.setAttribute('data-accent',acc==='teal'?'':acc); mount();
+  });
+}
+boot();
+</script>
+</body>
+</html>

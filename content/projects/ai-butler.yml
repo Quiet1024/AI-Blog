@@ -3,6 +3,5 @@ summary: Electron 桌面应用，用多个自主 Agent 组成"数字公司"，�
 role: 产品 + 架构
 year: 2026
 stack: [Electron, Vue 3, LangChain, Node.js]
-link: https://github.com/
 accent: amber
 order: 2

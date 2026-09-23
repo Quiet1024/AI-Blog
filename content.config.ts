@@ -19,8 +19,12 @@ export default defineContentConfig({
         date: z.date(),
         updated: z.date().optional(),
         tags: z.array(z.string()).default([]),
-        // 封面图：填了用图，没填则由 CoverArt 组件按标题生成渐变封面
+        // 封面图：填了用图，没填则由 CoverArt 组件按标签自动生成封面
         cover: z.string().optional(),
+        // 封面首词：浅色轨道封面上那个大号衬线短词，建议 2–4 字。
+        // 不填则回落到第一个标签 —— 标签本身就是短词，比截取标题前两个字体面得多。
+        // 注意：标签命中 terminalTags（AI / 工程 / 前端 …）时走深色终端轨，本字段不参与。
+        kicker: z.string().optional(),
         // 首页头条位；最多展示 1 篇（取最新的一篇 featured）
         featured: z.boolean().default(false),
         draft: z.boolean().default(false),

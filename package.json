@@ -14,6 +14,7 @@
     "preview": "nuxt preview",
     "serve": "node .output/server/index.mjs",
     "og": "node scripts/gen-og-image.mjs",
+    "shot": "node scripts/shot-page.mjs",
     "postinstall": "nuxt prepare"
   },
   "//trustedDependencies": "bun 默认不执行依赖的安装脚本；@nuxt/content 需要 better-sqlite3 的原生绑定，不信任它会导致构建时 'Could not locate the bindings file'",

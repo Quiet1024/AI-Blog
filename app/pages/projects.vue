@@ -16,26 +16,28 @@ useSeoMeta({
       <p
         class="mt-3 max-w-xl text-sm leading-relaxed text-[color-mix(in_oklab,var(--page-fg)_60%,transparent)]"
       >
-        一些做过的东西：产品设计、前端工程、还有写着玩的实验。
+        一些做过的东西：产品设计、全栈开发、还有些想法写着玩的实验。
       </p>
     </header>
 
     <div class="grid gap-8 pt-12 sm:grid-cols-2">
       <component
         :is="p.link ? 'a' : 'div'"
-        v-for="p in projects"
+        v-for="(p, i) in projects"
         :key="p.name"
         :href="p.link"
         :target="p.link ? '_blank' : undefined"
         rel="noopener"
         class="group overflow-hidden rounded-2xl border border-[var(--hairline)] transition hover:border-[color:var(--color-accent-500)]"
       >
-        <CoverArt
+        <ProjectCover
           v-if="!p.cover"
-          :title="p.name"
-          :seed="p.name"
+          :name="p.name"
+          :index="i + 1"
+          :year="p.year"
+          :accent-key="p.accent"
           height="14rem"
-          :label="p.year"
+          radius="0"
         />
         <NuxtImg
           v-else

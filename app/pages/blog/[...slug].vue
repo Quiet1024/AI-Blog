@@ -89,6 +89,8 @@ useSeoMeta({
         v-else
         :title="p.title"
         :seed="p.path"
+        :tags="p.tags"
+        :kicker="p.kicker"
         height="16rem"
         class="sm:h-[22rem]!"
       />
