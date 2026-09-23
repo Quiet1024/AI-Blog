@@ -7,6 +7,12 @@
  *   node scripts/shot-page.mjs / --sel ".cv-light, .cv-term" --name covers --dpr 2
  *   node scripts/shot-page.mjs /projects --zoom bl --zoom-sel .pc   # 放大看某个元素的左下角
  *
+ * ⚠️ 长文章别用整页截图。一篇 7000px 高的文章整页出图是 2.5MB 上下，
+ * 缩放之后又什么都看不清 —— 那是纯浪费（4 张就 10MB）。看文章用：
+ *   --viewport            只截当前视口（1280x800@2x，够看清版式）
+ *   --viewport --scroll N 先滚到第 N px 再截某一屏
+ * 只有首页、作品页这种 2700px 以内的短页面才适合整页截。
+ *
  * 做三件事：
  *   1. 同一条 URL 分别在 light / dark 两种配色方案下整页截图，落到 docs/ ；
  *   2. 对 --sel 命中的每个元素，量出盒子尺寸、圆角、底色、字号、**文字真实宽度**

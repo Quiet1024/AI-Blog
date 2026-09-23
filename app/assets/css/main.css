@@ -194,6 +194,58 @@ body {
 .prose-magazine li + li {
   margin-top: 0.5em;
 }
+/*
+ * 表格。
+ *
+ * 站内此前没有表格样式，而浏览器对 <table> 的默认样式**没有单元格内边距** ——
+ * 于是 Markdown 表格会退化成「紧挨着的几列文字」：实测 `Import Cost` 会跟右列
+ * 第一个字直接连成一个词（Import Costshaking,），行与行之间也看不出边界。
+ * 所以这不是审美问题，是少了就必须补的一条。
+ *
+ * 版式上只留横向细线、不加竖线和外框：和站内其余部分一样靠 --hairline 分层，
+ * 而不是画一张 Excel 那样的框。
+ *
+ * 首列一般是短标签（插件名、参数名），禁止换行 —— 否则 `indent-rainbow`
+ * 会被折成两行，看上去像两个词。
+ *
+ * 宽表格的处理用 display:block + overflow-x:auto（GitHub 渲染 README 用的同一套）：
+ * 表格自己横向滚动，不会把整页撑出横向滚动条。配合 width:max-content 让表格
+ * 按内容收紧，内容短的时候不会硬拉满整行。
+ *
+ * 注意不要给这里加 margin —— 竖向节奏统一交给上面的 `> * + *`，
+ * 单加一条会和它同权重打架，表格上下间距就和段落不一致了。
+ */
+.prose-magazine table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.prose-magazine th,
+.prose-magazine td {
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hairline);
+}
+.prose-magazine th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.prose-magazine th:first-child,
+.prose-magazine td:first-child {
+  padding-left: 0;
+  white-space: nowrap;
+}
+.prose-magazine th:last-child,
+.prose-magazine td:last-child {
+  padding-right: 0;
+}
+.prose-magazine tr:last-child td {
+  border-bottom: none;
+}
 .prose-magazine code {
   font-family: var(--font-mono);
   font-size: 0.88em;
