@@ -17,7 +17,19 @@ export default defineContentConfig({
         title: z.string(),
         description: z.string().default(''),
         date: z.date(),
-        updated: z.date().optional(),
+        // 为什么要写成 union 而不是 z.date().optional()：
+        //
+        // 后台（Sveltia CMS 等）对「可选日期」留空时会写入 `updated: ''`，
+        // 空字符串喂给 z.date() 会报 `Invalid date value: ""`。
+        // 而 @nuxt/content 对解析失败的文件是**只 WARN、然后整个文件忽略** ——
+        // 构建照样是绿的，但那篇文章从站点上直接消失，没有任何显式报错。
+        // 也就是说 z.date() 这个写法会让「后台把更新日期留空」变成静默删文章。
+        //
+        // 放进 union 后空串被接受；同时保留 z.date() 分支，
+        // 兼容 yml 里 2026-09-25 这种被 YAML 解析成 Date 的写法。
+        // 本字段目前没有任何组件读取（见 app/composables/usePosts.ts 的 PostItem），
+        // 所以放宽类型不影响渲染。
+        updated: z.union([z.date(), z.string()]).optional(),
         tags: z.array(z.string()).default([]),
         // 封面图：填了用图，没填则由 CoverArt 组件按标签自动生成封面
         cover: z.string().optional(),

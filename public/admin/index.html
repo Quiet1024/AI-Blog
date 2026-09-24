@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <!-- 后台不该被搜索引擎收录 -->
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>内容后台 · AI-Blog</title>
+  </head>
+  <body>
+    <!--
+      ⚠️ 这里刻意**没有** type="module"。
+      Sveltia 靠 document.currentScript.src 判断自己从哪加载的，再据此解析
+      懒加载 chunk 的地址（chunks/react-dom.js）。加了 type="module" 之后
+      currentScript 为 null，chunk 会退回从 unpkg 拉 —— 国内经常拉不到。
+
+      ⚠️ 也刻意**没有**引入任何 CSS 文件。Sveltia 的样式全部打包在 JS 里，
+      官方文档专门提醒别加 <link rel="stylesheet">（那是已停维护的 StaticCMS 的做法）。
+
+      JS 用相对路径引用（自托管，不走 CDN），见同目录 sveltia-cms.js。
+    -->
+    <script src="./sveltia-cms.js"></script>
+  </body>
+</html>
