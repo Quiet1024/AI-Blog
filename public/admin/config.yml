@@ -10,12 +10,23 @@ backend:
   # 内容提交到哪个分支。试验阶段用本分支，避免直接改动 main。
   # 合并到 main 之后把这里也改成 main，编辑才会触发线上重新部署。
   branch: feat/sveltia-cms
-  # 没有 base_url —— 意味着走「Sign In with Token」(PAT) 登录，不需要任何服务端。
+  # 没有 base_url —— 意味着走「Sign In Using Access Token」(PAT) 登录，不需要任何服务端。
   # 这是纯静态站能白嫖后台的关键：登录用你自己的 GitHub token，也不经过第三方。
+  #
+  # ⚠️ token 权限有两个坑（都实测踩过）：
+  #   1. token 里 Repository access 必须勾上 Quiet1024/AI-Blog，否则登录就报
+  #      "The repository ... doesn't have the branch ..."
+  #   2. **fine-grained token 只给 Contents: Write，写不了非默认分支** ——
+  #      本文件指定的正是非默认分支，所以保存时会报
+  #      "Resource not accessible by personal access token"。
+  #      两个修法：把 Contents 和 Workflows 都设 Read and write（改完要退出重登），
+  #      或直接换经典令牌 https://github.com/settings/tokens/new 勾 `repo` 一个 scope。
+  #      经典令牌对所有分支都能写，省事。
 
 # 站点地址。留空时 Sveltia 用当前页面的 origin。
-# 部署在子路径（/AI-Blog/）且想让后台里的图片预览也正常时，取消下面这行的注释：
-# site_url: https://quiet1024.github.io/AI-Blog
+# 子路径部署（GitHub Pages 的 /AI-Blog/）下，取消注释能让后台里的图片预览也正常显示。
+# 本分支已接入 deploy-pages.yml，会部署到 https://quiet1024.github.io/AI-Blog/admin/
+site_url: https://quiet1024.github.io/AI-Blog
 
 # 上传的图片存到仓库的 public/uploads/，前台引用路径写成 /uploads/xxx.png。
 # 与现有文章里 /chatmap/xxx.png 的写法保持同一种约定（根绝对路径，由 Nuxt 补子路径）。
