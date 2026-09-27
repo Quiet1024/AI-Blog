@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Sveltia CMS 配置 —— 内容后台的「字段表」。
+# 改这个文件就等于改后台的表单；字段名必须和 content.config.ts 里的 zod schema 对齐，
+# 写错了前台就读不到（收藏 schema 见 content.config.ts 的 posts / projects 两套）。
+
+backend:
+  name: github
+  repo: Quiet1024/AI-Blog
+  # 内容提交到哪个分支。试验阶段用本分支，避免直接改动 main。
+  # 合并到 main 之后把这里也改成 main，编辑才会触发线上重新部署。
+  branch: feat/sveltia-cms
+  # 没有 base_url —— 意味着走「Sign In Using Access Token」(PAT) 登录，不需要任何服务端。
+  # 这是纯静态站能白嫖后台的关键：登录用你自己的 GitHub token，也不经过第三方。
+  #
+  # ⚠️ token 权限有两个坑（都实测踩过）：
+  #   1. token 里 Repository access 必须勾上 Quiet1024/AI-Blog，否则登录就报
+  #      "The repository ... doesn't have the branch ..."
+  #   2. **fine-grained token 只给 Contents: Write，写不了非默认分支** ——
+  #      本文件指定的正是非默认分支，所以保存时会报
+  #      "Resource not accessible by personal access token"。
+  #      两个修法：把 Contents 和 Workflows 都设 Read and write（改完要退出重登），
+  #      或直接换经典令牌 https://github.com/settings/tokens/new 勾 `repo` 一个 scope。
+  #      经典令牌对所有分支都能写，省事。
+
+# 站点地址。留空时 Sveltia 用当前页面的 origin。
+# 子路径部署（GitHub Pages 的 /AI-Blog/）下，取消注释能让后台里的图片预览也正常显示。
+# 本分支已接入 deploy-pages.yml，会部署到 https://quiet1024.github.io/AI-Blog/admin/
+site_url: https://quiet1024.github.io/AI-Blog
+
+# 上传的图片存到仓库的 public/uploads/，前台引用路径写成 /uploads/xxx.png。
+# 与现有文章里 /chatmap/xxx.png 的写法保持同一种约定（根绝对路径，由 Nuxt 补子路径）。
+media_folder: /public/uploads
+public_folder: /uploads
+
+collections:
+  # ── 博客文章（Markdown，正文可渲染）───────────────────────────
+  - name: posts
+    label: 博客文章
+    label_singular: 文章
+    icon: article
+    folder: /content/posts
+    create: true
+    extension: md
+    # 不写 format —— Sveltia 对 .md 自动按 frontmatter 处理（源码 TF() 的默认分支）
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - label: 摘要
+        name: description
+        widget: text
+        required: false
+        default: ''
+        hint: 列表页和社交分享里显示的简介
+      # 不指定 format —— datetime 默认就输出 ISO 的 YYYY-MM-DD，
+      # 与现有文章的 date: 2026-09-18 完全一致，也符合官方「尽量用 ISO」的建议。
+      - { label: 发布日期, name: date, widget: datetime, type: date }
+      - { label: 更新日期, name: updated, widget: datetime, type: date, required: false }
+      - { label: 标签, name: tags, widget: list, required: false, default: [] }
+      - label: 封面首词
+        name: kicker
+        widget: string
+        required: false
+        hint: 封面上那个大号短词，2–4 字；留空则自动用第一个标签
+      - label: 封面图
+        name: cover
+        widget: image
+        required: false
+        hint: 留空则按标签自动生成封面
+      - { label: 首页头条, name: featured, widget: boolean, default: false }
+      - { label: 草稿, name: draft, widget: boolean, default: false, hint: 勾上则不发布 }
+      - { label: 正文用衬线体, name: serif, widget: boolean, default: true }
+      - { label: 作者, name: author, widget: string, required: false }
+      # 正文用 markdown 而不是 richtext：本项目的正文含 MDC 语法
+      # （::: 容器、Vue 组件等），markdown 模式会原样保留，richtext 可能改写它。
+      - { label: 正文, name: body, widget: markdown }
+
+  # ── 作品集（纯 YAML 数据，没有正文）────────────────────────────
+  - name: projects
+    label: 作品集
+    label_singular: 作品
+    icon: workspace_premium
+    folder: /content/projects
+    create: true
+    extension: yml
+    # 整个文件就是数据、没有 frontmatter，所以显式声明 yaml 格式
+    format: yaml
+    fields:
+      - { label: 项目名称, name: name, widget: string }
+      - { label: 简介, name: summary, widget: text }
+      - { label: 我的角色, name: role, widget: string, required: false, default: '' }
+      - label: 年份
+        name: year
+        widget: string
+        required: false
+        default: ''
+        hint: 文字即可，如 2026
+      - { label: 技术栈, name: stack, widget: list, required: false, default: [] }
+      - { label: 链接, name: link, widget: string, required: false }
+      - { label: 封面图, name: cover, widget: image, required: false }
+      - label: 配色
+        name: accent
+        widget: select
+        options: [teal, amber, moss, ocean, clay, ink]
+        default: teal
+        hint: 取 app/data/covers.ts 里注册的 6 套配色
+      - label: 排序
+        name: order
+        widget: number
+        default: 99
+        hint: 数字越小越靠前

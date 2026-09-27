@@ -28,3 +28,14 @@ themes/
 
 # 本地助手的工作状态（记忆/技能），不属于站点源码
 .workbuddy/
+
+# 凭据类文件 —— 绝不入库。
+# 踩过的坑：本地放过一个 token.md 存 GitHub PAT，虽然当时没被跟踪，
+# 但只要有人 `git add .` 就会把它提交进公开仓库，token 立刻泄露、必须作废重发。
+# 这里把常见命名一起堵住（通配放在具体文件名之前，顺序不影响，git 是叠加匹配）。
+*credential*
+*secret*
+token.md
+tokens.md
+*token*.md
+*.token
