@@ -7,9 +7,9 @@
 backend:
   name: github
   repo: Quiet1024/AI-Blog
-  # 内容提交到哪个分支。试验阶段用本分支，避免直接改动 main。
-  # 合并到 main 之后把这里也改成 main，编辑才会触发线上重新部署。
-  branch: feat/sveltia-cms
+  # 内容提交到哪个分支。已合并进 main，后台编辑直接提交到 main，
+  # 提交后 GitHub Actions 会自动重建并发布（见 .github/workflows/deploy-pages.yml）。
+  branch: main
   # 没有 base_url —— 意味着走「Sign In Using Access Token」(PAT) 登录，不需要任何服务端。
   # 这是纯静态站能白嫖后台的关键：登录用你自己的 GitHub token，也不经过第三方。
   #

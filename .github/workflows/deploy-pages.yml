@@ -2,16 +2,11 @@ name: Deploy to GitHub Pages
 
 # 推送到 main 即自动构建并发布；也可在 Actions 页面手动触发
 #
-# ⚠️ feat/sveltia-cms 是「Sveltia CMS 后台」的试验分支，也加进了触发列表 ——
-# 目的是能用真实线上环境验证后台（手机访问、子路径部署下的行为）。
-#
-# 但 GitHub Pages 是「一个仓库只有一个站点」，没有按分支分开的第二个地址。
-# 所以这个分支一旦被推送或手动触发，**它会构建并覆盖掉线上站点**，
-# 在你再次跑一次 main 之前，线上博客显示的是这个分支的版本。
-# 下面的 concurrency 分组就是为这件事准备的刹车（见注释）。
+# main 是唯一的发布来源。这个分支同时也是 Sveltia CMS 后台（/admin/）的宿主 ——
+# 后台编辑内容时提交到 main，因此同样触发下面这套流程，改完即上线。
 on:
   push:
-    branches: [main, feat/sveltia-cms]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -19,16 +14,7 @@ permissions:
   pages: write
   id-token: write
 
-# ⚠️ 这里的 group 是**故意的**：不分分支。
-#
-# 代价：两个分支的发布任务全局串行，一次只能跑一个。
-# 收益：这正是我们要的「刹车」——
-#   1. 试验分支的构建跑起来时，会自动取消排队中的 main 构建；
-#   2. 反过来，你推一次 main 也能立刻抢占、把线上覆盖回正式版本。
-# 如果按分支各自分组（group: pages-${{ github.ref }}），两个分支的部署会并发写
-# 同一个 Pages 站点，最终线上是哪个分支的产物完全随机 —— 那种不确定性更难排查。
-#
-# 回退办法：在 Actions 页面手动 Run workflow 选 main，即可把线上刷回正式版本。
+# 同一时间只跑一个发布任务，新的推送取消排队中的旧任务
 concurrency:
   group: pages
   cancel-in-progress: true

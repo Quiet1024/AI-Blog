@@ -1,15 +1,16 @@
-# 分支说明：feat/sveltia-cms
+# Sveltia CMS 内容后台
 
-试 **Sveltia CMS**（纯静态内容后台）的试验分支。`main` 不受影响，线上博客照旧。
+博客的内容后台。纯静态实现 —— **不需要任何服务器、不需要换托管**，
+部署在 GitHub Pages 上照旧能用。
 
 ## 一句话结论
 
-**纯静态站就能有后台，不需要任何服务器、不需要换托管。**
-登录用 GitHub「令牌」(PAT)，内容改完直接提交回仓库，CI 自动重建。
+**纯静态站就能有后台。**
+登录用 GitHub「访问令牌」(PAT)，内容改完直接提交回仓库，GitHub Actions 自动重建上线。
 
 这正好补上了 Nuxt Studio 的那个硬伤（Studio 要求 SSR，用不了 GitHub Pages）。
 
-## 这个分支改了什么
+## 它做了什么
 
 **新增 4 个静态文件 + 1 处 schema 修复**（后者是为了修掉一个会静默删文章的坑，见下面 坑 0）：
 
@@ -20,10 +21,16 @@
 | `public/admin/sveltia-cms.js` | CMS 本体，**自托管**（2.08 MB） |
 | `public/admin/chunks/react-dom.js` | 懒加载 chunk，**自托管**（215 KB） |
 | `content.config.ts` | `updated` 改成 union，容忍空串（**必须改，理由见坑 0**） |
+| `.gitattributes` | 固定上述 JS 的行尾，禁止 LF→CRLF 转换（理由见坑 4） |
 | 本文件 | 说明 |
 
 **没有改 `nuxt.config.ts`、没有加依赖、没有构建步骤。**
 `public/` 目录 Nuxt 会原样复制到产物，所以这些文件自动出现在 `/admin/` 下。
+
+## 访问地址
+
+- 线上：https://quiet1024.github.io/AI-Blog/admin/
+- 本地：`bun run dev` 后打开 `http://localhost:3000/admin/`
 
 ## 怎么用
 
@@ -38,16 +45,33 @@ bun run dev
 
 ### 线上真正用起来
 
-部署后访问 `https://<你的域名>/admin/`，点 **「Sign In with Token」**：
+访问 `https://quiet1024.github.io/AI-Blog/admin/`，点
+**「Sign In Using Access Token」**（注意：登录卡片上会并列好几个入口，
+`Sign In with GitHub` 和 `Sign In with Link/Mobile` 在本项目**都用不了**，
+它们分别需要 OAuth 后端和额外部署的服务）：
 
-1. 点按钮 → 跟着弹窗里的链接去 GitHub 生成一个 token（**权限已经预选好了**）
-2. 选 **Fine-grained token**，只授权给 `AI-Blog` 这一个仓库
-3. 需要两个权限：`Contents` = Read and write，`Pull requests` = Read and write
-4. 把 token 粘回来，登录完成
+1. 点按钮 → 跟着弹窗里的链接去 GitHub 生成令牌（**名字和权限已经预选好了**）
+2. 打开的是 **fine-grained token** 页面，`Token name` 和 `Contents: Read and write`
+   都帮你填好了
+3. ⚠️ **`Repository access` 要自己选**（GitHub 不支持用链接预填）：
+   选 `Only select repositories` → 勾 `Quiet1024/AI-Blog`
+4. 生成 → 复制 `github_pat_...` → 粘回后台，登录完成
 
-token 存在浏览器本地，下次不用再填。
+令牌存在浏览器本地，下次不用再填。
 
 **为什么这个方式好**：不用建 OAuth App、不用部署任何服务、不给第三方任何权限。
+
+**⚠️ 权限有个坑（实测踩过）**：fine-grained token 只给 `Contents: Write`
+的话，只能读、一保存就报 `Resource not accessible by personal access token` ——
+因为 fine-grained token 的 Contents 写权限**只对默认分支放开**，
+而本后台提交到 `main`（默认分支）本该没问题……如果仍报错，两个办法：
+把 `Contents` 和 `Workflows` 都设成 Read and write（改完**退出后台重登**），
+或直接换**经典令牌**（https://github.com/settings/tokens/new 勾 `repo` 一个 scope），
+经典令牌对所有分支都能写，最省事。
+
+**⚠️ 每次保存后建议 `git diff` 看一眼**：后台保存会写回 config 里定义过的**所有**字段
+（留空会落成 `字段: ''`），而且年份、排序这类手填字段很容易输错，
+CMS 不做任何校验。实测就抓到过一次年份被误改。
 这是 Sveltia 相对 Decap/Netlify CMS 最实用的一条改进。
 
 > 如果以后要给「不懂 GitHub 的客户」用，再考虑部署 Sveltia CMS Authenticator
@@ -169,7 +193,7 @@ StaticCMS 的做法，现在的版本没有独立 CSS 文件。
 
 ## 与 Nuxt Studio 的对比
 
-| | Sveltia CMS（本分支） | Nuxt Studio（另一分支） |
+| | Sveltia CMS（已合并进 main） | Nuxt Studio（`feat/nuxt-studio` 分支） |
 |---|---|---|
 | 托管要求 | **纯静态即可**，GitHub Pages 照用 | **必须支持 SSR**，要换平台 |
 | 改动量 | 只加 4 个静态文件 | 加模块 + routeRules，构建方式变化 |
@@ -182,20 +206,30 @@ StaticCMS 的做法，现在的版本没有独立 CSS 文件。
 **关键**：两者都没有解决「发布要等构建」这件事，都走 `git 提交 → CI 重建 → 部署`。
 区别只在**要不要服务端**。Sveltia 用零服务端换到了够用的编辑体验。
 
+## 已知的待改进项
+
+- **新建文件用的是随机 ID 文件名**：`config.yml` 里没配 `slug`，
+  所以后台新建作品/文章时，文件名会长成 `88ab2d9a01f7.yml` 这样。
+  功能没问题（前台读目录下所有文件，不看文件名），但不利于日后维护。
+  要改就在对应 collection 下加 `slug: '{{fields.name}}'`。
+  （已经手工重命名过一个：`88ab2d9a01f7.yml` → `lingxi-workbench.yml`，
+  用 `git mv` 保留历史。）
+- **后台内图片预览**：`config.yml` 里 `site_url` 已打开（子路径部署需要它）。
+
 ## 待你自己验证的部分
 
-- **在真实浏览器里点一遍**：本地 `bun run dev` 打开 `/admin/`，看界面是否正常渲染
-  （我只能验证到 HTTP 层，界面是 JS 渲染的，必须真开浏览器）。
-- **PAT 登录全流程**：用你自己的 token 走一遍，确认能读到文章列表。
-- **改一篇文章并保存**，确认提交到了 `feat/sveltia-cms` 分支、CI 有反应。
+- ~~在真实浏览器里点一遍~~ ✅ 已实测：登录、新建作品、修改作品均成功
+  （远程产生过 `Create 作品` / `Update 作品` 两条提交）。
 - **移动端**：这一条对「交付给客户」很关键 —— Sveltia 号称手机可用，
   但手机上生成 GitHub token 的体验是否顺畅，要自己试。
 - **图片上传**：确认存进 `public/uploads/`、前台能显示。
-  子路径部署下后台内的图片预览可能需要打开 `config.yml` 里的 `site_url`（已注释，有说明）。
 - **Sveltia 保存时会不会丢掉「不在 config 里的 frontmatter 字段」**：
   `content/posts/test.md` 里有 `navigation` / `seo` 这类既不在 config、也不在 schema 的字段
   （是 Nuxt Content 的内置字段）。Decap 系 CMS 有「只写 config 定义过的字段」的行为，
   所以第一次保存那篇之后，建议 `git diff` 看一眼有没有被删。
   **我无法在无浏览器环境验证这一条，必须你自己确认。**
+- **构造更复杂的文章**（含 `:::` 容器、Vue 组件）后保存，确认 MDC 语法没被改写坏。
+  正文用的是 `markdown` 模式，理论上原样保留，但值得实测一次。
 
 > `updated` 留空的问题**已经验证并修掉了**（见上面坑 0），不用再验。
+
