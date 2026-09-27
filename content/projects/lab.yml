@@ -1,10 +1,11 @@
 name: 小实验集合
 summary: 一些写着玩的东西：CSV 可视化、本地图片压缩、Markdown 转公众号排版工具。
 role: 独立开发
-year: 2025
+year: '2024'
 stack:
   - TypeScript
   - Vite
 link: ''
+cover: /uploads/快递驿站兼职图标.png
 accent: moss
 order: 4
