@@ -5,6 +5,7 @@
 .nitro
 .cache
 dist
+.nuxt-studio-dev
 
 # Node dependencies
 node_modules
