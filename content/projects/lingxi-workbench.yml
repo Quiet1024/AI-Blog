@@ -1,0 +1,13 @@
+name: 灵犀工作台
+summary: 搭配 AI 开发的一套整理资料与笔记的工作台：上传学习资料后自动解析，经向量化处理形成可检索的笔记向量；内置小黑板、费曼学习法等模块，用于巩固学习、复习以及资料的快速查找。
+role: 开发者
+year: 2026
+stack:
+  - Electron
+  - Vue
+  - TypeScript
+  - Node.js
+  - LangChain
+link: ''
+accent: teal
+order: 99
