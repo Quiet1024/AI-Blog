@@ -70,9 +70,25 @@ collections:
       - { label: 草稿, name: draft, widget: boolean, default: false, hint: 勾上则不发布 }
       - { label: 正文用衬线体, name: serif, widget: boolean, default: true }
       - { label: 作者, name: author, widget: string, required: false }
-      # 正文用 markdown 而不是 richtext：本项目的正文含 MDC 语法
-      # （::: 容器、Vue 组件等），markdown 模式会原样保留，richtext 可能改写它。
-      - { label: 正文, name: body, widget: markdown }
+      # ── 正文 ────────────────────────────────────────────────────────
+      # modes: [raw] —— 强制纯文本（Markdown 源码）编辑模式。这一条是必须的。
+      #
+      # 为什么：Sveltia 的 markdown / richtext widget 底层是 Lexical，默认模式是
+      # 富文本。它会把正文**解析成节点树再重新序列化回 Markdown**，这个往返会
+      # 吃掉它不认识的写法 —— 长文里出现「只有部分标题被识别」「表格/分隔线变形」
+      # 就是这么来的。改成纯文本模式后，编辑器不再解析，内容所见即所存。
+      #
+      # ⚠️ 取值命名有个坑：这版（0.220.0）的文档写 [raw, rich_text]，
+      # 但**运行时判定用的是 `modes[0] === 'rich-text'`**，而 schema 的 enum 是
+      # ['rich_text','raw'] —— 两套命名并不一致。用 `raw` 对两边都成立：
+      # schema 合法，且不等于 'rich-text'，所以走纯文本。
+      #
+      # 想让编辑器保留富文本切换按钮（默认仍进纯文本）就写 [raw, rich_text]。
+      # 但注意：一旦切到富文本再保存，复杂格式就可能被改写，所以默认只给纯文本。
+      - label: 正文
+        name: body
+        widget: markdown
+        modes: [raw]
 
   # ── 作品集（纯 YAML 数据，没有正文）────────────────────────────
   - name: projects

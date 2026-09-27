@@ -89,8 +89,7 @@ CMS 不做任何校验。实测就抓到过一次年份被误改。
 
 几个刻意的选择：
 
-- **正文用 `markdown` 而不是 `richtext`**：本项目正文含 MDC 语法（`:::` 容器、Vue 组件），
-  markdown 模式原样保留，richtext 可能把它改写坏。
+- **正文强制纯文本模式（`modes: [raw]`）**：这一条是必须的，理由见下一节。
 - **日期不指定 `format`**：Sveltia 用 Day.js（不是 moment），`datetime` 默认就输出
   ISO 的 `YYYY-MM-DD`，与现有文章的 `date: 2026-09-18` 完全一致。
   官方也建议「尽量用 ISO，格式化交给应用代码」。
@@ -98,6 +97,45 @@ CMS 不做任何校验。实测就抓到过一次年份被误改。
   （teal / amber / moss / ocean / clay / ink），避免手打出不存在的 key。
 - **上传的图存 `public/uploads/`**，前台引用写成 `/uploads/xxx.png`，
   与现有 `/chatmap/xxx.png` 同一种约定。
+
+## 🔴 正文必须用纯文本模式，否则长文会被改坏
+
+**症状**：在后台编辑长文章时出现「只有部分标题被识别」、表格 / 分隔线 / 嵌套结构变形，
+甚至整段内容消失。短文章往往看不出来，**越长、语法越复杂越明显**。
+
+**根因**：Sveltia 的 `markdown` widget 底层是 **Lexical**（富文本框架），
+默认模式是 `[rich_text, raw]` —— **`rich_text` 在前，所以打开文章默认进富文本编辑器**。
+富文本编辑器会把 Markdown **解析成节点树，保存时再序列化回 Markdown**。
+这个往返只认得它自己那套节点类型，不认识的写法在解析阶段就丢了。
+（实测：水平线在往返后从 `---` 变成 `***`，两个都能渲染，但**说明它确实在改写你的原文**。）
+
+**修法**：给正文字段加 `modes`，强制纯文本：
+
+```yaml
+- label: 正文
+  name: body
+  widget: markdown
+  modes: [raw]
+```
+
+纯文本模式下编辑器**不再解析**，正文就是 Markdown 源码本身，所见即所存。
+
+**⚠️ 取值命名有个坑 —— 这版（0.220.0）自身就不一致**：
+
+| 来源 | 取值 |
+|---|---|
+| 官方文档 | `[raw, rich_text]` |
+| 本版 JSON schema 的 enum | `rich_text` / `raw` |
+| **本版运行时判定逻辑** | `modes[0] === 'rich-text'` 才进富文本；组件默认值是 `['rich-text','plain-text']` |
+
+用 **`raw`** 对两边都成立：schema 合法，且不等于 `rich-text`，所以走纯文本。
+（判断依据来自 bundle 源码：`M(s, e.modes[0] === \`rich-text\` || e.isCodeEditor, true)`。）
+
+想让编辑器**保留富文本切换按钮**（默认仍进纯文本）就写 `modes: [raw, rich_text]`。
+但要注意：一旦切到富文本再保存，复杂格式就可能被改写 —— 所以这里默认只给纯文本。
+
+**顺带澄清**：`markdown` 和 `richtext` 在 Sveltia 里是**同一个 widget 的别名**，
+写哪个都一样；行为差异完全由 `modes` 决定。这一点和 Decap/Netlify CMS 的直觉不一样。
 
 ## ⚠️ 四个坑（都已修掉 / 已注释说明）
 
