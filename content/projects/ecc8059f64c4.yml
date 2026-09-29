@@ -1,0 +1,15 @@
+name: 桌面端AI 自动获客工具
+summary: 桌面端自动化 AI 获客工具，通过AI+自动化全域获取精准客，精准将公域目标用户引流到私域。
+role: 开发者
+year: '2026'
+stack:
+  - Electron
+  - Vue3
+  - playwright
+  - patchwright
+  - Nodejs
+  - AI API
+link: ''
+cover: ''
+accent: teal
+order: 99
