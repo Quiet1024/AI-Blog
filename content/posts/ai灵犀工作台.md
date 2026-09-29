@@ -1,6 +1,6 @@
 ---
 title: AI灵犀工作台
-description: 作品AI灵犀平台展示
+description: 作品AI灵犀平台展示。
 date: 2026-08-13
 updated: 2026-08-13
 tags:
