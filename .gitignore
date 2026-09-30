@@ -40,3 +40,6 @@ token.md
 tokens.md
 *token*.md
 *.token
+
+# SEO 诊断的原始取证文件（可重新生成）
+.seo-audit/
