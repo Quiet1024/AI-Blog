@@ -78,17 +78,40 @@ collections:
       # 吃掉它不认识的写法 —— 长文里出现「只有部分标题被识别」「表格/分隔线变形」
       # 就是这么来的。改成纯文本模式后，编辑器不再解析，内容所见即所存。
       #
-      # ⚠️ 取值命名有个坑：这版（0.220.0）的文档写 [raw, rich_text]，
-      # 但**运行时判定用的是 `modes[0] === 'rich-text'`**，而 schema 的 enum 是
-      # ['rich_text','raw'] —— 两套命名并不一致。用 `raw` 对两边都成立：
-      # schema 合法，且不等于 'rich-text'，所以走纯文本。
+      # ⚠️ 取值命名是「两层」，不是不一致（已核对 bundle 源码）：
+      # 配置层写对外名 ['rich_text','raw']，运行时用内部名 ['rich-text','plain-text']，
+      # 中间有映射表 kTe={rich_text:'rich-text', raw:'plain-text'}，配置数组先过它再判定
+      # `modes[0] === 'rich-text'`。所以 [raw] → ['plain-text'] → 纯文本，无切换器；
+      # [raw, rich_text] → ['plain-text','rich-text'] → 默认纯文本 + 多一个模式切换器；
+      # [rich_text, raw] → ['rich-text', ...] → 富文本（官方默认行为）。
       #
-      # 想让编辑器保留富文本切换按钮（默认仍进纯文本）就写 [raw, rich_text]。
-      # 但注意：一旦切到富文本再保存，复杂格式就可能被改写，所以默认只给纯文本。
+      # 想让编辑器保留富文本切换按钮（默认仍进纯文本）就用 [raw, rich_text]。
+      # 但注意：一旦切到富文本，全文会被重新解析并序列化，复杂格式可能被改写。
+      #
+      # ⚠️ raw 模式的固有代价：**没有「插入图片」按钮**。
+      # 官方文档在 RichText 一节的 Future Plans 里写明「These buttons are disabled
+      # when raw mode is active」，而「拖拽 / 粘贴图片自动上传」也是 Lexical（富文本）
+      # 的能力，纯文本编辑器不具备。这不是配置写错了，是安全换来的取舍。
+      # 正文插图改为「资产库上传 + 手写 Markdown」，见下面 hint 与 SVELTIA-CMS.md。
+      # 想恢复一键插图：把 modes 改成 [raw, rich_text]，会多出模式切换器，
+      # 但切到富文本再保存 = 让 Lexical 重新解析并序列化全文，长文有被改写的风险。
+      #
+      # ⚠️⚠️ 资产库给的两个地址**都不能直接粘进正文**（2026-09-30 线上实测）：
+      #   · 「公开 URL」 https://quiet1024.github.io/uploads/xxx.png        → 404
+      #     它缺部署子路径 /AI-Blog。根因在 Sveltia 源码：它只取 site_url 的 origin
+      #     （n._baseURL = new URL(n._siteURL).origin），配 site_url 也救不回来。
+      #   · 「文件路径」 /public/uploads/xxx.png                            → 404
+      #     正文要的是站点路径 /uploads/xxx.png，不是仓库路径。
+      #   · 只有 /uploads/xxx.png 正确（线上 /AI-Blog/uploads/xxx.png 实测 200）。
+      # 参考资料：正文图片经 ProseImg → NuxtImg → IPX，最终输出 /<base>/_ipx/_/<路径>。
       - label: 正文
         name: body
         widget: markdown
         modes: [raw]
+        # 单行写法是刻意的：折叠标量（>-）会把换行折成空格，中文里会多出空格。
+        # 也刻意**不写 Markdown 标记**：hint 是纯文本渲染（模板为 <p class="hint"> ），
+        # `**加粗**` 会原样显示星号，`![x](y)` 也不会变成图片。
+        hint: 插图：资产库上传后复制「文件路径」，粘进正文时删掉开头的 /public，写成 ![说明](/uploads/文件名.png)。资产库的「公开 URL」别用——它缺部署子路径，实测 404。
 
   # ── 作品集（纯 YAML 数据，没有正文）────────────────────────────
   - name: projects

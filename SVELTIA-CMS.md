@@ -96,7 +96,7 @@ CMS 不做任何校验。实测就抓到过一次年份被误改。
 - **作品配色用 `select`**：取值来自 `app/data/covers.ts` 里注册的 6 套
   （teal / amber / moss / ocean / clay / ink），避免手打出不存在的 key。
 - **上传的图存 `public/uploads/`**，前台引用写成 `/uploads/xxx.png`，
-  与现有 `/chatmap/xxx.png` 同一种约定。
+  与现有 `/chatmap/xxx.png` 同一种约定。**正文里怎么插图见下面「纯文本模式下怎么插图」一节。**
 
 ## 🔴 正文必须用纯文本模式，否则长文会被改坏
 
@@ -120,19 +120,31 @@ CMS 不做任何校验。实测就抓到过一次年份被误改。
 
 纯文本模式下编辑器**不再解析**，正文就是 Markdown 源码本身，所见即所存。
 
-**⚠️ 取值命名有个坑 —— 这版（0.220.0）自身就不一致**：
+**取值命名看着像两套，其实是两层（已核对 bundle 源码，不是猜的）**：
 
-| 来源 | 取值 |
-|---|---|
-| 官方文档 | `[raw, rich_text]` |
-| 本版 JSON schema 的 enum | `rich_text` / `raw` |
-| **本版运行时判定逻辑** | `modes[0] === 'rich-text'` 才进富文本；组件默认值是 `['rich-text','plain-text']` |
+配置里写的是**对外名字**，运行时用的是**内部名字**，中间有一张明确的映射表：
 
-用 **`raw`** 对两边都成立：schema 合法，且不等于 `rich-text`，所以走纯文本。
-（判断依据来自 bundle 源码：`M(s, e.modes[0] === \`rich-text\` || e.isCodeEditor, true)`。）
+```js
+OTe = ['rich_text', 'raw']                              // ① schema 的 enum（配置层取值）
+kTe = { rich_text: 'rich-text', raw: 'plain-text' }     // ② 映射表：对外名 → 内部名
+T   = A(() => modes.map((e) => kTe[e]).filter(Boolean)) // ③ 配置数组先过映射表
+// ④ 判定：M(s, e.modes[0] === `rich-text` || e.isCodeEditor, true)
+```
 
-想让编辑器**保留富文本切换按钮**（默认仍进纯文本）就写 `modes: [raw, rich_text]`。
-但要注意：一旦切到富文本再保存，复杂格式就可能被改写 —— 所以这里默认只给纯文本。
+所以 `modes` 的真实语义是「**映射后，第一个元素是不是 `rich-text`**」：
+
+| 配置写法 | 映射后 | 打开时进哪个模式 |
+|---|---|---|
+| `[raw]` | `['plain-text']` | 纯文本，无切换器 |
+| `[raw, rich_text]` | `['plain-text', 'rich-text']` | **纯文本** + 工具栏多一个模式切换器 |
+| `[rich_text, raw]` | `['rich-text', 'plain-text']` | 富文本（= 官方默认行为） |
+
+**结论**：本项目用 `[raw]`，纯文本、无切换器、不会被改写。
+想让编辑器**保留富文本切换按钮**（默认仍进纯文本）就写 `modes: [raw, rich_text]` ——
+但一旦切到富文本，全文就会被重新序列化，复杂格式可能被改写，所以这里默认不给。
+
+> 📌 订正记录：本文档早前写过「`rich_text` ≠ `rich-text`，所以永远进不了富文本」，
+> 那是**错的** —— 漏看了 ② 这张映射表。实际 `[rich_text, raw]` 就是富文本默认。
 
 **顺带澄清**：`markdown` 和 `richtext` 在 Sveltia 里是**同一个 widget 的别名**，
 写哪个都一样；行为差异完全由 `modes` 决定。这一点和 Decap/Netlify CMS 的直觉不一样。
@@ -168,6 +180,83 @@ CMS 不做任何校验。实测就抓到过一次年份被误改。
 
 > 判断「文件有没有被改坏」的一行检查：文件里**不该有任何以 4 个及以上反引号开头的行**，
 > 且**不该有连续 2 个以上的空行**。
+
+## 🖼️ 纯文本模式（raw）下怎么在正文里插图
+
+`modes: [raw]` 买到的是「正文一个字都不会被改写」，代价是**工具栏的插图按钮没了**。
+这是官方的明确行为，不是配置写错。官方 RichText 文档的 Future Plans 一节原文：
+
+> *These buttons are disabled when raw mode is active.*
+
+而「把本地/远程图片拖进编辑器、或直接粘贴，自动上传并插入」同样是 **Lexical（富文本）** 的能力，
+纯文本编辑器不具备。所以 raw 模式下**不存在**一键插图的入口 —— 这是取舍，不是 bug。
+
+### 方案 A（推荐，零风险）：资产库上传 + 手写 Markdown
+
+Sveltia 自带完整的**资产库**（侧栏 `Asset Library`，与 `Collections` / `Entries` 平级），
+上传目标就是 `config.yml` 里的 `media_folder: /public/uploads`。
+
+1. 侧栏进 **Asset Library** → 上传（支持拖拽、批量）
+2. 选中图片 → **Copy file path**
+3. 回到正文，手写一行 Markdown，**并把复制到的路径开头的 `/public` 删掉**：
+
+   ```markdown
+   ![图片说明](/uploads/xxx.png)
+   ```
+
+#### ⚠️ 资产库给的两个地址都不能直接粘（2026-09-30 线上实测）
+
+| 资产库里显示的 | 值 | 实测结果 |
+|---|---|---|
+| 公开 URL | `https://quiet1024.github.io/uploads/xxx.png` | **404** ❌ 缺部署子路径 |
+| 文件路径 | `/public/uploads/xxx.png` | **404** ❌ 那是仓库路径，不是站点路径 |
+| 正文里该写的 | `/uploads/xxx.png` | **200** ✅ |
+
+**公开 URL 为什么是坏的：Sveltia 的固有限制，配 `site_url` 也救不回来。**
+bundle 源码里它拿到 `site_url` 之后**只取 origin**，路径被丢掉了：
+
+```js
+n._siteURL = n.site_url?.trim() || window.location.origin
+n._baseURL = new URL(n._siteURL).origin     // ← /AI-Blog 在这里被扔掉
+```
+
+`_siteURL` 全项目只用于「查看站点」那个链接；拼资源地址用的是 `_baseURL`（纯域名）。
+所以**子路径部署下「公开 URL」永远是错的，别用它**。
+
+复制菜单里只有 Public URL / File Path / File ID / File Data，**没有「复制为 Markdown」**，
+所以不存在一步到位的办法 —— 只能手删 `/public` 那 7 个字符。
+（`config.yml` 里正文的 `hint` 已经把这句话写在编辑框旁边了。）
+
+**为什么正文里必须写根绝对路径 `/uploads/...`**：与现有 `/chatmap/...` 同一种约定，
+由 `ProseImg.vue` 交给 NuxtImg 自动补部署子路径。实测线上已发布文章的 `<img>` 输出为
+`/AI-Blog/_ipx/_/chatmap/sidebar-overview.png`，该地址实测 **200** —— 链路是通的。
+
+**⚠️ 文件名用英文或数字**：正文图片会走 **IPX 处理管线**，
+非 ASCII 文件名在 URL 里会变成 percent-encoded 形式，多一层风险，没有必要。
+
+> 💡 一条好用的排查经验：`_ipx/_/<路径>` 是**按内容引用按需生成**的。
+> 实测 `/_ipx/_/uploads/1790773299095.png` 现在是 404 ——
+> 因为**还没有任何文章引用它**。所以「图片传上去了但线上没有这个地址」是正常的，
+> 把它写进正文、触发一次构建就会出现。
+> 反过来说：**图片不显示时，先确认正文里引用的路径拼对了**，别急着怀疑上传失败。
+
+### 方案 B（顺手，但有代价）：开富文本切换
+
+把正文字段改成 `modes: [raw, rich_text]`：工具栏多出**模式切换器**，默认仍进纯文本。
+需要插图时切到富文本 → 一键插图 / 拖拽 / 粘贴 → 再切回 raw。
+
+⚠️ 代价是实打实的：**只要切到富文本，全文就会走一遍
+「Markdown → Lexical 节点树 → Markdown」的往返** —— 正是当初要避免的那个改写过程。
+`:::` 容器、表格、代码块、嵌套列表都有被吃掉的风险。
+
+**建议**：只在**短文章**里这么用；长技术文老老实实走方案 A。
+
+### 为什么不给正文单独加一个 `image` 字段
+
+看着方便，实则有害：那个字段会作为**新的 frontmatter 键**写进 `.md`，
+而它并不在 `content.config.ts` 的 zod schema 里。
+`@nuxt/content` 对 schema 外的键处理很严，风险与「坑 0」（空串日期静默删文章）同源 ——
+**能不加未知 frontmatter 字段就不要加。**
 
 ## ⚠️ 四个坑（都已修掉 / 已注释说明）
 
@@ -292,7 +381,14 @@ StaticCMS 的做法，现在的版本没有独立 CSS 文件。
   （远程产生过 `Create 作品` / `Update 作品` 两条提交）。
 - **移动端**：这一条对「交付给客户」很关键 —— Sveltia 号称手机可用，
   但手机上生成 GitHub token 的体验是否顺畅，要自己试。
-- **图片上传**：确认存进 `public/uploads/`、前台能显示。
+- ~~**图片上传**：确认存进 `public/uploads/`、前台能显示。~~
+  ✅ 2026-09-30 已实测确认：侧栏有 `Asset Library` 入口；上传后文件进 `public/uploads/`
+  （`https://quiet1024.github.io/AI-Blog/uploads/1790773299095.png` 实测 200）。
+  **同时暴露了一个真问题**：资产库显示的「公开 URL」和「文件路径」**都是 404**，
+  正文必须写 `/uploads/xxx.png`。完整对照表与根因见上面「纯文本模式下怎么插图」。
+- **图片不显示时怎么定位**：正文里的路径是唯一容易错的一环（见上一条）。
+  另外 `_ipx/_/<路径>` 是按内容引用按需生成的，
+  没被任何文章引用的图片在线**本来就没有** `_ipx` 地址 —— 这不是故障。
 - **Sveltia 保存时会不会丢掉「不在 config 里的 frontmatter 字段」**：
   `content/posts/test.md` 里有 `navigation` / `seo` 这类既不在 config、也不在 schema 的字段
   （是 Nuxt Content 的内置字段）。Decap 系 CMS 有「只写 config 定义过的字段」的行为，
