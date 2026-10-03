@@ -41,5 +41,17 @@ tokens.md
 *token*.md
 *.token
 
-# SEO 诊断的原始取证文件（可重新生成）
+# SEO 诊断的原始取证（curl 转储，随时可重新生成）——不必进仓库
 .seo-audit/
+
+# ── 加密专区的明文源文件 —— **绝不入库** ────────────────────────────────
+# vault-src/ 存放私密笔记的明文 markdown，只存在本机。
+# 仓库里只提交 content/vault/*.json（密文）。
+# 一旦把 vault-src/ 提交上去，加密就白做了 —— 所以这里必须堵死。
+vault-src/
+
+# ── 仓库损坏时的抢救现场 —— **绝不入库** ────────────────────────────────
+# scripts/fix-git-repo.sh 会把损坏的 .git 改名为 .git-broken-<时间戳> 留档。
+# 那是几百 MB 的坏对象垃圾，一旦提交会把仓库彻底搞坏，必须堵死。
+.git-broken-*/
+_worktree-backup.tar.gz

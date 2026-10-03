@@ -90,12 +90,23 @@ export default defineNuxtConfig({
     canonicalLowercase: false,
   },
 
+  // ── sitemap：排除加密专区 ──────────────────────────────────────────
+  // /vault 是一个真实页面路由，@nuxtjs/sitemap 默认会把所有路由收进来。
+  // 虽然 robot noindex 能挡住大部分爬虫，但 sitemap 里出现这条 URL 本身
+  // 就等于「告诉全世界这里有个加密专区」，与「完全隐藏」的决策相悖。
+  sitemap: {
+    exclude: ['/vault'],
+  },
+
   // @nuxtjs/robots 在设置了 baseURL 时会直接报错：
   //   "You are not allowed to generate a robots.txt with a base URL"
   // 因为 robots.txt 必须位于域名根，模块无法保证这一点。
   // 所以只在根路径部署时生成；子路径部署（GitHub Pages 项目页）本就读不到它。
   robots: {
     robotsTxt: baseURL === '/',
+    // /vault（加密专区）禁止被任何爬虫收录。
+    // 注意：这只是「请求爬虫别收」，不是访问控制 —— 真正的保护是内容加密。
+    disallow: ['/vault'],
   },
 
   // SEO 模块读取的站点信息（注意 url 只能用「源」地址，不能带路径）
@@ -139,6 +150,38 @@ export default defineNuxtConfig({
     },
   },
 
+  // ── 旧 URL 301 重定向 ──────────────────────────────────────────────
+  //
+  // 背景（2026-10-03）：Nuxt Content 用 slugify 从**文件名**生成 path，而 slugify
+  // 会丢光中文。当时的三个中文文件名塌缩成了下面的残片，其中
+  // `/blog/ai` 被两篇文章同时算出（「AI灵犀工作台」与「AI自动化找工作」）
+  // → 互相覆盖 → 「新建文章保存后封面变了，点进去却是上一篇的内容」。
+  // 修复手段：把内容文件名全部改成 ASCII（见 scripts/check-content-filenames.mjs），
+  // 并在 public/admin/config.yml 给两个 collection 配 slug 模板，防止以后复发。
+  //
+  // 这里给旧地址留 301，保住外链 / 搜索引擎收录 / 旧分享：
+  //
+  //   /blog/ai                   旧塌缩残片（原属「AI灵犀工作台」）→ /blog/ai-lingxi-workbench
+  //   /blog/c                    旧塌缩残片（原属「C盘爆了」）      → /blog/c-drive-full-rescue
+  //   /blog/playwright-chrome-cdp 旧 URL（中文冒号截断了前半段）    → /blog/playwright-user-chrome-cdp
+  //
+  // ⚠️ 关于 /blog/ai 的取舍：这个地址历史上被两篇文章共用过，指向哪一篇都是
+  //    「将错就错」。「AI灵犀工作台」（2026-08-13）是更早、更可能被外链引用的那篇，
+  //    所以跳它。若你更想把 /blog/ai 给「AI自动化找工作」，改下面这一行即可。
+  //
+  // 这些规则可以长期保留，成本接近零（静态站只生成 3 个跳转页）。
+  routeRules: {
+    '/blog/ai': { redirect: { to: '/blog/ai-lingxi-workbench', statusCode: 301 } },
+    '/blog/c': { redirect: { to: '/blog/c-drive-full-rescue', statusCode: 301 } },
+    '/blog/playwright-chrome-cdp': {
+      redirect: { to: '/blog/playwright-user-chrome-cdp', statusCode: 301 },
+    },
+    // ces.md 被改成 n8n-ai-customer-service.md，旧地址一并跳转
+    '/blog/ces': {
+      redirect: { to: '/blog/n8n-ai-customer-service', statusCode: 301 },
+    },
+  },
+
   // 静态生成时预渲染全部文章路由
   // /search-index.json 是关键：它把全站搜索变成「读一个静态 JSON」，
   // 这样纯静态托管（对象存储 / CDN / Pages）也能搜索，不依赖 Node 服务端。
@@ -154,6 +197,12 @@ export default defineNuxtConfig({
         '/rss.xml',
         '/sitemap.xml',
         '/search-index.json',
+        // 旧 URL 的重定向页。crawlLinks 爬不到它们（站内已无链接指向旧地址），
+        // 必须显式列出才会生成对应的 HTML 跳转文件。
+        '/blog/ai',
+        '/blog/c',
+        '/blog/ces',
+        '/blog/playwright-chrome-cdp',
       ],
     },
   },

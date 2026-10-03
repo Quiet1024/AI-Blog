@@ -42,6 +42,25 @@ collections:
     folder: /content/posts
     create: true
     extension: md
+    #
+    # ── slug：决定「新建条目时的文件名」＝前台 URL ──────────────────────
+    #
+    # ⚠️⚠️ 这一行是必须的，不是可选优化。不配 slug 时 Sveltia 用标题生成文件名，
+    #     而标题是中文 → Nuxt Content 的 generatePath 会走 slugify，
+    #     **中文被全部剥掉**，path 塌缩成 2–3 个字母的残片：
+    #        ai灵犀工作台.md      → /blog/ai
+    #        c盘爆了？？别慌….md  → /blog/c
+    #     两篇不同文章算出同一个 path → 抢同一个主键 → **后写的覆盖先写的**，
+    #     表现为「新建文章保存后封面变了，点进去却是上一篇的内容」（首尾错位）。
+    #     中文冒号「：」还会被 refineUrlPart 的 split(/[\/:]/) 切断，前半段直接消失。
+    #     详见 static-site-url-debug 技能与 .workbuddy/memory/2026-10-03.md。
+    #
+    # ✅ 用「日期前缀」而不是纯 {{slug}}：
+    #     Sveltia 的 slug 模板内部同样走 slugify，**纯中文标题依然会被清空**，
+    #     只留 `{{slug}}` 就会退化成空文件名 / 随机 ID。带上 {{year}}-{{month}}-{{day}}
+    #     这一段 ASCII，无论标题是什么语言，文件名都至少稳定且唯一。
+    #
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
     # 不写 format —— Sveltia 对 .md 自动按 frontmatter 处理（源码 TF() 的默认分支）
     fields:
       - { label: 标题, name: title, widget: string }
@@ -103,6 +122,16 @@ collections:
       #   · 「文件路径」 /public/uploads/xxx.png                            → 404
       #     正文要的是站点路径 /uploads/xxx.png，不是仓库路径。
       #   · 只有 /uploads/xxx.png 正确（线上 /AI-Blog/uploads/xxx.png 实测 200）。
+      #
+      # ✅ 2026-09-30 线上复核：这条路已经跑通过。
+      #   /blog/ai 正文里写 /uploads/1790484100787.png，页面实际输出
+      #   /AI-Blog/_ipx/w_1800/uploads/1790484100787.png，实测 200 / 199757B。
+      #
+      # ⚠️ 图片变体（/_ipx/...）是**构建期按引用生成**的，不是运行时按需：
+      #   没有文章引用的图，即使原文件已在线上（/uploads/x.png → 200），
+      #   它的 /_ipx/... 地址依然是 404。→ 新插图在构建完成前打不开是正常现象，
+      #   不要误判成「上传失败」或「路径写错了」。先查 /uploads/原文件名 是否为 200。
+      #
       # 参考资料：正文图片经 ProseImg → NuxtImg → IPX，最终输出 /<base>/_ipx/_/<路径>。
       - label: 正文
         name: body
@@ -111,7 +140,7 @@ collections:
         # 单行写法是刻意的：折叠标量（>-）会把换行折成空格，中文里会多出空格。
         # 也刻意**不写 Markdown 标记**：hint 是纯文本渲染（模板为 <p class="hint"> ），
         # `**加粗**` 会原样显示星号，`![x](y)` 也不会变成图片。
-        hint: 插图：资产库上传后复制「文件路径」，粘进正文时删掉开头的 /public，写成 ![说明](/uploads/文件名.png)。资产库的「公开 URL」别用——它缺部署子路径，实测 404。
+        hint: 插图三步：① 资源库上传图片；② 选中后复制「文件路径」，粘进正文时删掉开头的 /public，写成 ![说明](/uploads/文件名.png)；③ 保存后会触发构建，等 2–5 分钟图才出现。资源库的「公开 URL」别用——它缺部署子路径，实测 404。
 
   # ── 作品集（纯 YAML 数据，没有正文）────────────────────────────
   - name: projects
@@ -121,6 +150,9 @@ collections:
     folder: /content/projects
     create: true
     extension: yml
+    # 同 posts：不配 slug 时文件名会退化成随机 ID（现有 content/projects/ecc8059f64c4.yml
+    # 就是这么来的），或者被中文标题清空。带上日期前缀保证 ASCII 且唯一。
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
     # 整个文件就是数据、没有 frontmatter，所以显式声明 yaml 格式
     format: yaml
     fields:

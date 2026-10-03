@@ -62,6 +62,16 @@ jobs:
       - name: 校验原生模块
         run: node -e "require('better-sqlite3'); console.log('better-sqlite3 原生绑定 OK')"
 
+      # 内容文件名必须是纯 ASCII。
+      #
+      # 为什么拦在这一步：Nuxt Content 用 slugify 生成 path，**会丢掉全部中文**，
+      # 中文文件名会塌缩成 /blog/ai、/blog/c 这种残片；两篇撞同一个 path 就会
+      # 相互覆盖，表现为「新建文章保存后封面变了，点进去却是上一篇的内容」。
+      # 后台（Sveltia）已配 slug 生成 ASCII 文件名，这里是防「手工往 content/ 里
+      # 丢中文文件」以及后台配置回退的最后一道闸。
+      - name: 校验内容文件名（防 path 塌缩）
+        run: node scripts/check-content-filenames.mjs
+
       - name: 生成纯静态站点
         env:
           NUXT_APP_BASE_URL: ${{ steps.site.outputs.base }}

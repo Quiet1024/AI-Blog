@@ -15,6 +15,10 @@
     "serve": "node .output/server/index.mjs",
     "og": "node scripts/gen-og-image.mjs",
     "shot": "node scripts/shot-page.mjs",
+    "check:content": "node scripts/check-content-filenames.mjs",
+    "vault": "node scripts/vault.mjs",
+    "vault:test": "node scripts/test-vault-crypto.mjs",
+    "vault:e2e": "node scripts/test-vault-e2e.mjs",
     "postinstall": "nuxt prepare"
   },
   "//trustedDependencies": "bun 默认不执行依赖的安装脚本；@nuxt/content 需要 better-sqlite3 的原生绑定，不信任它会导致构建时 'Could not locate the bindings file'",
@@ -33,6 +37,7 @@
     "@takumi-rs/core": "^2.14.0",
     "@vueuse/nuxt": "^15.0.0",
     "better-sqlite3": "11.10.0",
+    "marked": "^18.0.14",
     "nuxt": "^4.5.2",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.43",

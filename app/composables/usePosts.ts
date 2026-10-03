@@ -4,6 +4,8 @@ import type { Ref } from 'vue'
 export interface PostItem {
   id: string
   path: string
+  /** 文件名推导出的 URL 末段；与 path 的尾段一致，一般不直接用来拼链接 */
+  slug?: string
   stem?: string
   title: string
   description: string
