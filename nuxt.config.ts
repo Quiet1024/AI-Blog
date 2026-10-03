@@ -80,6 +80,13 @@ export default defineNuxtConfig({
     public: {
       siteOrigin, // 'https://<user>.github.io'
       siteFullUrl: siteUrl, // 'https://<user>.github.io/<repo>'
+      /**
+       * n8n Chat 的 production webhook 地址。留空 = 整个聊天组件关闭。
+       * 默认值来自 app/data/site.ts（全站配置源头），CI 里也可用环境变量覆盖：
+       *   NUXT_PUBLIC_N8N_CHAT_URL=https://your-n8n.example.com/webhook/xxxx
+       * 详见 N8N-CHAT.md。
+       */
+      n8nChatUrl: process.env.NUXT_PUBLIC_N8N_CHAT_URL || siteConfig.chat.n8nWebhookUrl,
     },
   },
 
