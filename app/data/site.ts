@@ -21,6 +21,10 @@ export const siteConfig = {
     { label: '文章', to: '/blog' },
     { label: '作品', to: '/projects' },
     { label: '关于', to: '/about' },
+    // 加密专区：私密笔记，需密码解锁。
+    // 这是「完全隐藏」策略下的唯一入口 —— 不出现在首页/文章列表/标签云/
+    // 搜索/RSS/sitemap 里，只有导航这一条路能进。
+    { label: '加密', to: '/vault' },
   ],
   // icon 取值见 app/components/AppIcon.vue 的映射表
   social: [

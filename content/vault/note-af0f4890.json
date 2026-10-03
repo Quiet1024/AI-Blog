@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "kdf": "PBKDF2-SHA256",
+  "iter": 210000,
+  "salt": "RNAM7u6Z1anoWr337QMEvg==",
+  "iv": "MlUKseZa5EfChHvQ",
+  "data": "zf0aYi5M9IKTziL8MtZgv0uwleqKirUq7fgqya2FywIynUulrG/0RgiCkQwFb3ZjFVwnLbc3aklHlj+xfg/iGNTDlliRemsduhmBeXXlcGrT6LQ3ywjgXbFDAXpVV7gZpxycSxWinxGdMdVk6QeQKIzYOY19rLFS1N+RFDfR5T1tx7lfAZBu5KnKpbL4OW/znCpIabUzx6qMsAAg9GJUYgg4YcpxyBoCXfBD9Y9TACjo607xV48T++4kZTr2H5o6hl9f0jKnApG32/La6OARrZ2iEbW3HydXdfjhv67oDo1keWcCK30Q9afVolppuWO4+NszpLNXEeLByz1TCtP9VvZYMg==",
+  "title": "另一篇笔记",
+  "date": "2026-10-03",
+  "tags": [
+    "私密"
+  ],
+  "source": "另一篇笔记.md"
+}

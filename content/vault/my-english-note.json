@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "kdf": "PBKDF2-SHA256",
+  "iter": 210000,
+  "salt": "PY5pOGD3KDAvAnVzj3OpXA==",
+  "iv": "IzdX0pNVZoQDkOD+",
+  "data": "2gs96nhjnVRjzCMbP8vVGuU6Jfp4fmd8xXcokxQuisCGrbd6czI1uchA+60c6OQYE09y+OJOQ9V38oZXIwcOQbkmJ8iDx/g6ipCZgnsAkcWlVcJ2jISP5LF6UwoPskjuMs0gvJl4HSCpIGs4SXAWc0/e3SXJNkPrUDGNPlGiC6pp65iaSaBj7IzuBwmHvWLbpgNQ3RHjd2Za/nCosUulK+2qNRwA0rUu1dgeeR2Xwrr+lTahfzH/ZZ1jN51NT2tmL2GD9YuUO8k+fHH3X/HAfpAe1vzUvUof6ZtDaS94VIH3BTaEsDaZqNqVkLkavYveVcc9bH9QMO5e6UZFmGn0en7T0g==",
+  "title": "my-english-note",
+  "date": "2026-10-03",
+  "tags": [
+    "私密"
+  ],
+  "source": "my-english-note.md"
+}
