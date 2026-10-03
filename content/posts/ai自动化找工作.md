@@ -18,4 +18,4 @@ author: L
 ---
 
 功能图片如下：
-<image scr="/uploads/1791020728158.png" />
+<image scr="/uploads/1791020728158.png">
