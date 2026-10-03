@@ -9,7 +9,7 @@ tags:
   - deepSeek
 kicker: AI智能客服
 cover: ''
-featured: false
+featured: true
 draft: false
 serif: true
 author: L
