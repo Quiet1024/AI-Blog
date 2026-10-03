@@ -8,8 +8,8 @@ tags:
   - nuxtjs
   - vue
 kicker: AI智能客服
-cover: ''
-featured: false
+cover: /uploads/1790942853815.png
+featured: true
 draft: false
 serif: true
 author: L
