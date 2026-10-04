@@ -202,15 +202,26 @@ export default defineNuxtConfig({
   //    所以跳它。若你更想把 /blog/ai 给「AI自动化找工作」，改下面这一行即可。
   //
   // 这些规则可以长期保留，成本接近零（静态站只生成 3 个跳转页）。
+  //
+  // ⚠️ 跳转目标必须**手动带上 basePrefix**（和上面 favicon 的 href 同理）。
+  // 静态导出时 Nitro 把 `to` 原样写进跳转页的
+  //   <meta http-equiv="refresh" content="0; url=<to>">
+  // **不会**替你补 app.baseURL。曾经写的是不带前缀的 '/blog/ai-lingxi-workbench'，
+  // 线上跳转页于是写着 url=/blog/ai-lingxi-workbench；而站点在 /AI-Blog/ 下，
+  // 结果跳到 https://<user>.github.io/blog/... → **404**，这套 301 等于白做。
   routeRules: {
-    '/blog/ai': { redirect: { to: '/blog/ai-lingxi-workbench', statusCode: 301 } },
-    '/blog/c': { redirect: { to: '/blog/c-drive-full-rescue', statusCode: 301 } },
+    '/blog/ai': {
+      redirect: { to: `${basePrefix}/blog/ai-lingxi-workbench`, statusCode: 301 },
+    },
+    '/blog/c': {
+      redirect: { to: `${basePrefix}/blog/c-drive-full-rescue`, statusCode: 301 },
+    },
     '/blog/playwright-chrome-cdp': {
-      redirect: { to: '/blog/playwright-user-chrome-cdp', statusCode: 301 },
+      redirect: { to: `${basePrefix}/blog/playwright-user-chrome-cdp`, statusCode: 301 },
     },
     // ces.md 被改成 n8n-ai-customer-service.md，旧地址一并跳转
     '/blog/ces': {
-      redirect: { to: '/blog/n8n-ai-customer-service', statusCode: 301 },
+      redirect: { to: `${basePrefix}/blog/n8n-ai-customer-service`, statusCode: 301 },
     },
   },
 
