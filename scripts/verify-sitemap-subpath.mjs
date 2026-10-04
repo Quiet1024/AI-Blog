@@ -17,12 +17,18 @@
  * 含带前缀与不带前缀两套）。下面内联的是从那次构建产物里逐字抄下来的夹具，
  * 若缓存文件还在则优先用实时文件。
  *
- * 判据分三组：
+ * 判据分四组：
  *   A. 修复前必须能复现 Bug（多出一条 /<repo>/<repo>）—— 复现不出来说明验证本身无效
  *   B. 修复后首页只剩一条、无重复、图片地址带上子路径
  *   C. 不含重复段的正常 URL 必须逐字不变
  *      （这条是补的回归测试：曾经用「按固定长度截尾」实现，
  *        前缀判断一旦失准就把线上 sitemap 里每条 URL 都截断了）
+ *   D. 主机名大小写不一致时（loc 大写 / siteOrigin 小写，以及反向）
+ *      重复段仍必须被修掉、正常 URL 仍必须逐字不变。
+ *      （回归测试：CI 的 NUXT_PUBLIC_SITE_URL 来自 github.repository_owner，
+ *        是 'https://Quiet1024.github.io'；而 nuxt.config 若用
+ *        `new URL(...).origin` 取源会把主机名转小写，两者只差大小写时
+ *        前缀比对判不中，线上就漏出一条 .../AI-Blog/AI-Blog）
  *
  * 用法：node scripts/verify-sitemap-subpath.mjs
  */
@@ -140,6 +146,39 @@ const snapped = untouchedSamples.map((loc) => ({ ...{ loc } }))
 fixSubpathSitemapUrls(snapped, { siteOrigin, basePrefix })
 const allUnchanged = snapped.every((u, i) => u.loc === untouchedSamples[i])
 
+// ── D 组：主机名大小写不一致时，重复段仍必须被修掉（回归测试）
+//
+// 为什么会有大小写差异：CI 的 NUXT_PUBLIC_SITE_URL 来自 `github.repository_owner`，
+// 真实值是 'https://Quiet1024.github.io'（Q 大写），sitemap 的 <loc> 会原样保留；
+// 而 nuxt.config 里若用 `new URL(...).origin` 取「源」，URL 规范会把主机名
+// **强制转小写**。两者只差大小写时，前缀比对若区分大小写就会静默漏修 ——
+// 线上真的出现过 https://Quiet1024.github.io/AI-Blog/AI-Blog 这条。
+const MIXED_CASE_ORIGIN = 'https://Quiet1024.github.io' // 真实 CI 值
+const LOWER_CASE_ORIGIN = 'https://quiet1024.github.io'
+
+function caseTrial(locOrigin, paramOrigin) {
+  const urls = [
+    { loc: `${locOrigin}${basePrefix}${basePrefix}`, _key: 'k1' }, // ← 双路径，需要被修
+    { loc: `${locOrigin}${basePrefix}`, _key: 'k2' }, // 首页，必须逐字不变
+    { loc: `${locOrigin}${basePrefix}/about`, _key: 'k3' }, // 普通页，必须逐字不变
+  ]
+  const before = urls.map((u) => u.loc)
+  fixSubpathSitemapUrls(urls, { siteOrigin: paramOrigin, basePrefix })
+  return {
+    fixed: urls[0].loc === `${locOrigin}${basePrefix}`,
+    untouched: urls[1].loc === before[1] && urls[2].loc === before[2],
+    lines: urls.map((u, i) => `      ${i === 0 ? '→' : ' '} ${u.loc}`).join('\n'),
+  }
+}
+
+const d1 = caseTrial(MIXED_CASE_ORIGIN, LOWER_CASE_ORIGIN) // loc 大写 / 参数小写
+const d2 = caseTrial(LOWER_CASE_ORIGIN, MIXED_CASE_ORIGIN) // loc 小写 / 参数大写
+console.log('\n=== D 组：主机名大小写不一致 ===')
+console.log('  D1 loc 大写 / siteOrigin 小写:')
+console.log(d1.lines)
+console.log('  D2 loc 小写 / siteOrigin 大写:')
+console.log(d2.lines)
+
 // ── 断言
 const checks = [
   ['A 自检：修复前确实能复现出重复首页', locs(before).includes(doubled)],
@@ -151,6 +190,9 @@ const checks = [
   ['B 图片地址已带上子路径', imagesAfter.length === 0 || imagesAfter.every((l) => l.startsWith(`${siteUrl}/`))],
   ['C 无重复段的正常 URL 逐字未变', allUnchanged],
   ['C 修复后每条 loc 都是完整地址（没被截断）', locs(after).every((l) => l.startsWith(`${siteUrl}/`) || l === siteUrl)],
+  ['D loc 大写 / siteOrigin 小写时，重复段仍被修掉', d1.fixed],
+  ['D loc 小写 / siteOrigin 大写时，重复段仍被修掉', d2.fixed],
+  ['D 大小写不一致时正常 URL 仍逐字不变', d1.untouched && d2.untouched],
 ]
 
 console.log('')

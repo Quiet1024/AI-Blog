@@ -25,10 +25,24 @@ const basePrefix = baseURL.replace(/\/+$/, '')
  * 所以这里统一用 URL 解析把「源」与「路径」拆开。
  */
 const configuredSiteUrl = (process.env.NUXT_PUBLIC_SITE_URL || siteConfig.url).replace(/\/+$/, '')
-const parsedSiteUrl = new URL(configuredSiteUrl)
+
+/**
+ * 用正则把「源」与「路径」切开，**刻意不用 `new URL(...).origin`**：
+ * URL 规范会把主机名强制转小写，而 CI 的 NUXT_PUBLIC_SITE_URL 来自
+ * `github.repository_owner`，实际是 'https://Quiet1024.github.io'（Q 大写）。
+ * sitemap 里的 <loc> 会原样保留这个大小写，而 server/utils/sitemap-subpath.mjs
+ * 需要拿 siteOrigin 去和 loc 做前缀比对 —— 这里一旦转成小写就比对不中，
+ * 首页那条 /<repo>/<repo> 会静默漏修（已真实踩到：线上 sitemap 出现
+ * https://Quiet1024.github.io/AI-Blog/AI-Blog）。
+ * 正则只做切分、不改写任何字符，因此大小写原样保留。
+ */
+const siteUrlMatch = configuredSiteUrl.match(/^([a-z][a-z0-9+.-]*:\/\/[^/]+)(\/.*)?$/i)
 
 /** 站点「源」地址：只有协议 + 域名，不带路径 */
-const siteOrigin = parsedSiteUrl.origin
+const siteOrigin = siteUrlMatch ? siteUrlMatch[1] : configuredSiteUrl
+
+/** siteConfig.url 里自带的那段部署路径（CI 用不到，本地回退时用） */
+const configuredBasePath = (siteUrlMatch?.[2] ?? '').replace(/\/+$/, '')
 
 /**
  * 部署子路径：
@@ -36,9 +50,7 @@ const siteOrigin = parsedSiteUrl.origin
  * - 否则把 siteConfig.url 里带的那段路径取回来，这样本地不设该变量时，
  *   RSS 条目链接与 OG 图仍指向 /AI-Blog，而不是掉到域名根上。
  */
-const basePath = process.env.NUXT_APP_BASE_URL
-  ? basePrefix
-  : parsedSiteUrl.pathname.replace(/\/+$/, '')
+const basePath = process.env.NUXT_APP_BASE_URL ? basePrefix : configuredBasePath
 
 /**
  * 站点完整地址 = 源 + 部署子路径，例如 https://<user>.github.io/<repo>。

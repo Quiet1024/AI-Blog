@@ -48,6 +48,13 @@ export default defineNitroPlugin((nitroApp) => {
   // 只取 siteOrigin。别用 runtimeConfig.public.siteUrl ——
   // 它会被环境变量 NUXT_PUBLIC_SITE_URL 覆盖成不带路径的源地址，
   // 拿它去算「被重复的那段 base」会算错、把正常 URL 截断。
+  //
+  // ⚠️ 大小写：这里的值来自 nuxt.config 的 siteOrigin，而 CI 的
+  // NUXT_PUBLIC_SITE_URL 是 'https://Quiet1024.github.io'（来自
+  // github.repository_owner，Q 大写），sitemap 的 <loc> 会原样保留。
+  // 修函数内部已改为**不区分大小写**比对，所以这里传大小写哪一版都行；
+  // 但不要在 nuxt.config 里用 `new URL(...).origin` 去规范化（它会把主机名
+  // 转小写），历史上正是这个差别导致首页那条 /<repo>/<repo> 静默漏修。
   const siteOrigin = String(config.public.siteOrigin || '').replace(/\/+$/, '')
 
   nitroApp.hooks.hook('sitemap:resolved', (ctx) => {

@@ -23,6 +23,18 @@ export function fixSubpathSitemapUrls(urls, { siteOrigin, basePrefix }) {
   const fullPrefix = `${origin}${basePrefix}` // 'https://<user>.github.io/<repo>'
   const doubled = `${basePrefix}${basePrefix}` // '/<repo>/<repo>'
 
+  // ⚠️ 主机名**不区分大小写**，这里的比对必须跟着不区分。
+  //
+  // CI 的 NUXT_PUBLIC_SITE_URL 来自 `github.repository_owner`，实际值是
+  // 'https://Quiet1024.github.io'（Q 是大写）；sitemap 里的 <loc> 会原样保留
+  // 这个大小写。只要这里做大小写敏感比对，前缀就判不中，首页那条
+  // /<repo>/<repo> 会**静默漏修**（真实踩过：线上 sitemap 里留下一条
+  // https://Quiet1024.github.io/AI-Blog/AI-Blog）。
+  // 只转小写用于「查找/比对」，改写 loc 时用原串切片，保证不改变输出大小写。
+  const originLc = origin.toLowerCase()
+  const doubledLc = doubled.toLowerCase()
+  const fullPrefixLc = fullPrefix.toLowerCase()
+
   for (const url of urls) {
     if (!url || typeof url !== 'object' || typeof url.loc !== 'string') continue
 
@@ -32,8 +44,9 @@ export function fixSubpathSitemapUrls(urls, { siteOrigin, basePrefix }) {
     //
     // 用「找到重复段、只删掉其中一段」的写法，而不是从末尾截掉固定长度：
     // 后者一旦前缀判断失准，就会把正常 URL 截断成垃圾。
-    const at = url.loc.indexOf(doubled)
-    if (at > 0 && (!origin || url.loc.startsWith(origin))) {
+    const locLc = url.loc.toLowerCase()
+    const at = locLc.indexOf(doubledLc)
+    if (at > 0 && (!originLc || locLc.startsWith(originLc))) {
       url.loc = url.loc.slice(0, at) + url.loc.slice(at + basePrefix.length)
       // _key 是模块后面用来去重的键，而且是在解析前算好的，这里必须同步更新，
       // 否则它认不出「这条和被多拼的那一条其实是同一个地址」，会留下两条重复项。
@@ -47,8 +60,11 @@ export function fixSubpathSitemapUrls(urls, { siteOrigin, basePrefix }) {
     if (origin && Array.isArray(url.images)) {
       for (const image of url.images) {
         if (typeof image?.loc !== 'string') continue
-        if (image.loc.startsWith(`${origin}/`) && !image.loc.startsWith(`${fullPrefix}/`)) {
-          image.loc = `${fullPrefix}${image.loc.slice(origin.length)}`
+        const imageLc = image.loc.toLowerCase()
+        if (imageLc.startsWith(`${originLc}/`) && !imageLc.startsWith(`${fullPrefixLc}/`)) {
+          // 用 loc 自身那段（切片）当「源」，避免把大小写不同的两段拼在一起
+          const imageOrigin = image.loc.slice(0, origin.length)
+          image.loc = `${imageOrigin}${basePrefix}${image.loc.slice(origin.length)}`
         }
       }
     }
