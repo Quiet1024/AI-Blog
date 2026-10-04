@@ -23,11 +23,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # v5 起用 node24 运行时（v4 声明的是 node20，已被 GitHub 标记弃用并强制升级，
+      # 每次运行都会产生一条 "Node.js 20 is deprecated" 警告）。
+      # v5 要求 runner >= v2.327.1，GitHub 托管 runner 已满足。
+      - uses: actions/checkout@v5
 
       # 固定 Node 版本：@nuxt/content 依赖 better-sqlite3 的原生绑定，
       # 绑定是按 Node 的 ABI 版本下载/编译的，版本飘了就会 "Could not locate the bindings file"。
-      - uses: actions/setup-node@v4
+      #
+      # 注意 setup-node v5 新增了「检测到 package.json 有 packageManager 字段就自动缓存」，
+      # 本项目没有该字段，所以不会触发，行为与 v4 一致。
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
