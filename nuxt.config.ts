@@ -11,20 +11,40 @@ const baseURL = process.env.NUXT_APP_BASE_URL || '/'
 const basePrefix = baseURL.replace(/\/+$/, '')
 
 /**
- * 站点「源」地址：只有协议 + 域名，**不带路径**。
+ * 站点地址有两个来源，语义**不同**，必须分开处理：
  *
- * 变量名不要改 —— nuxt-site-config 自己就认 NUXT_PUBLIC_SITE_URL 这个环境变量，
- * 并且明确要求它不含路径（含了会在构建期报 "should not contain a path" 警告）。
- * 而 sitemap 生成 <loc> 时会自己把 app.baseURL 拼上去
- * （模块内 createSitePathResolver 传了 withBase: true），所以子路径交给 baseURL。
+ *   - CI：环境变量 NUXT_PUBLIC_SITE_URL 只给「源」（协议+域名），子路径由
+ *     NUXT_APP_BASE_URL（→ baseURL / basePrefix）提供。
+ *   - 本地：回退到 siteConfig.url，而它是**完整地址**，自带 '/AI-Blog' 这段路径。
+ *
+ * 变量名不要改 —— nuxt-site-config 自己就认 NUXT_PUBLIC_SITE_URL，
+ * 并且明确要求它不含路径（含了会报 "should not contain a path" 警告）。
+ * 曾经的回退值是直接拿 siteConfig.url 当「源」，于是本地 site.url 带了路径：
+ * 既触发上面那条警告，也让 server/plugins/sitemap-subpath-fix.ts 拿到一个
+ * 错误的「源」（它预期的是 https://<user>.github.io 这种形态）。
+ * 所以这里统一用 URL 解析把「源」与「路径」拆开。
  */
-const siteOrigin = (process.env.NUXT_PUBLIC_SITE_URL || siteConfig.url).replace(/\/+$/, '')
+const configuredSiteUrl = (process.env.NUXT_PUBLIC_SITE_URL || siteConfig.url).replace(/\/+$/, '')
+const parsedSiteUrl = new URL(configuredSiteUrl)
+
+/** 站点「源」地址：只有协议 + 域名，不带路径 */
+const siteOrigin = parsedSiteUrl.origin
+
+/**
+ * 部署子路径：
+ * - 显式给了 NUXT_APP_BASE_URL（CI）→ 用它；
+ * - 否则把 siteConfig.url 里带的那段路径取回来，这样本地不设该变量时，
+ *   RSS 条目链接与 OG 图仍指向 /AI-Blog，而不是掉到域名根上。
+ */
+const basePath = process.env.NUXT_APP_BASE_URL
+  ? basePrefix
+  : parsedSiteUrl.pathname.replace(/\/+$/, '')
 
 /**
  * 站点完整地址 = 源 + 部署子路径，例如 https://<user>.github.io/<repo>。
  * RSS 的条目链接与 OG 图需要这种带路径的完整地址（爬虫不会替你补子路径）。
  */
-const siteUrl = `${siteOrigin}${basePrefix}`
+const siteUrl = `${siteOrigin}${basePath}`
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
