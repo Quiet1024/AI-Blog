@@ -6,7 +6,7 @@ updated: 2026-09-30
 tags:
   - C盘
   - 傲梅分区助手
-kicker: C盘爆了？不要慌，有尚方宝剑！
+kicker: C盘爆了？？
 cover: ''
 featured: true
 draft: false
