@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nuxtjs",
+  "installCommand": "bun install --registry https://registry.npmjs.org --os=linux --cpu=x64",
+  "buildCommand": "bun run build"
+}

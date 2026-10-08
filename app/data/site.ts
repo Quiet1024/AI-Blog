@@ -8,7 +8,18 @@ export const siteConfig = {
   tagline: '在未定义处，构建可能。',
   description:
     '一个关于全栈开发 与 AI 工具产品的独立博客。写点文章，贴点作品。',
-  url: 'https://quiet1024.github.io/AI-Blog', // TODO: 换成你的域名，SEO / RSS / OG 图都依赖它
+  // 站点地址。**只在本地开发时用作回退值**（`nuxt dev` 时决定 canonical / OG / RSS）。
+  //
+  // 两个部署环境都靠环境变量覆盖它，不会读到这里：
+  //   · GitHub Pages → CI 里注入 NUXT_PUBLIC_SITE_URL（workflow 的「计算 baseURL」步骤）
+  //   · Vercel      → 在项目 Settings → Environment Variables 里配
+  // 所以这个值不影响线上产物，但**本地调试时指向哪里就是它**。
+  //
+  // ⚠️ 换域名时记得同步改这里，否则本地跑出来的 canonical 会指向旧域名，
+  //    容易误判成「线上 SEO 配置错了」。
+  url: 'https://quiet1024.vercel.app', // TODO: 换成你的域名
+  // 旧的 GitHub Pages 地址（保留备查，迁移完成后可删）：
+  //   https://quiet1024.github.io/AI-Blog
   locale: 'zh-CN',
   author: {
     name: 'L',

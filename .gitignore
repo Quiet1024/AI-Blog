@@ -7,6 +7,9 @@
 dist
 .nuxt-studio-dev
 
+# Vercel
+.vercel
+
 # Node dependencies
 node_modules
 
