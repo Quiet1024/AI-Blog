@@ -62,11 +62,18 @@ jobs:
       - name: 安装依赖
         run: bun install --frozen-lockfile
 
-      # 先确认 better-sqlite3 的原生绑定装好了再往下走。
-      # 没有这一步的话，报错会一路绕到 Nuxt 构建里，只看到
-      # "Could not locate the bindings file" 这种不好定位的信息。
-      - name: 校验原生模块
-        run: node -e "require('better-sqlite3'); console.log('better-sqlite3 原生绑定 OK')"
+      # 先确认构建期的 sqlite 驱动可用，再往下走。
+      #
+      # 现在走的是 node:sqlite（Nuxt Content 的 sqliteConnector: 'native'），
+      # **不再依赖 better-sqlite3 的原生绑定**。所以这一步校验的是 node:sqlite，
+      # 而不是 `require('better-sqlite3')`。
+      #
+      # 为什么换掉（2026-10-08）：better-sqlite3 是原生模块，ABI 跟着 Node 版本走。
+      # 本地 Node 与构建机 Node 一旦不一致，绑定在进程退出时会崩在
+      # `node::RemoveEnvironmentCleanupHook ... Assertion failed` → SIGABRT。
+      # node:sqlite 是 Node 自带的，与 Node 版本天然匹配，没有这个问题。
+      - name: 校验 sqlite 驱动（node:sqlite）
+        run: node -e "const {DatabaseSync}=require('node:sqlite'); new DatabaseSync(':memory:').close(); console.log('node:sqlite OK, Node ' + process.version)"
 
       # 内容文件名必须是纯 ASCII。
       #

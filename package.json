@@ -1,6 +1,9 @@
 {
   "name": "my-blog",
   "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "private": true,
   "scripts": {
     "dev": "nuxt dev",

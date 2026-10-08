@@ -180,6 +180,35 @@ export default defineNuxtConfig({
         toc: { depth: 3, searchDepth: 3 },
       },
     },
+    // ── 构建期用哪种 sqlite 驱动 ────────────────────────────────────────
+    //
+    // @nuxt/content 在构建期要建一个本地 sqlite 库存内容索引。它有四个候选：
+    //   'bun'            → Bun 内置 sqlite（只有 Bun 运行时才有）
+    //   'native'         → Node 22.5+ 内置的 node:sqlite（**无需编译**）
+    //   'sqlite3'        → sqlite3 包（需要原生编译）
+    //   'better-sqlite3' → better-sqlite3 包（需要原生编译，**默认兜底**）
+    //
+    // 不指定时它走最后一个兜底分支（见 node_modules/@nuxt/content/dist/module.mjs
+    // 的 findBestSqliteAdapter），即强制用 better-sqlite3。
+    //
+    // ⚠️ 这就是 Vercel 构建 SIGABRT 的根因（2026-10-08）：
+    //   Vercel 构建机上的 Node 与本地 Node 的 ABI 不一致，
+    //   better-sqlite3 的原生绑定在进程退出时崩在
+    //   `node::RemoveEnvironmentCleanupHook ... Assertion failed: (env) != nullptr`
+    //   → `error: script "build" was terminated by signal SIGABRT (Abort)`
+    //   注意崩溃点是 **Statement 析构函数**，说明绑定本身加载成功了，
+    //   是退出阶段的清理钩子对不上 —— 典型的原生模块 ABI 漂移。
+    //
+    // 改用 'native' 就整条绕开原生编译：走 Node 自带的 node:sqlite，
+    // 与 Node 版本天然匹配，没有 ABI 问题，也不需要 prebuild/gyp。
+    // 本地实测 node:sqlite 可用（Node 22.22.2，读写正常）。
+    //
+    // 顺带一提：content 会自己吞掉 node:sqlite 的 ExperimentalWarning
+    // （见 module.mjs 里 isNodeSqliteAvailable 对 process.emit 的包装），
+    // 所以不会刷一屏实验性警告。
+    experimental: {
+      sqliteConnector: 'native',
+    },
   },
 
   // ── 旧 URL 301 重定向 ──────────────────────────────────────────────
